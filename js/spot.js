@@ -1,81 +1,112 @@
-// =============== Spot Calculator Logic ===============
+// spot.js — final stable version
+
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("btn-calc-spot");
-    const resultBlock = document.getElementById("spot-result");
+    const form = document.getElementById("spot-form");
+    const resultEl = document.getElementById("spot-result");
 
-    if (!btn) return;
+    document.getElementById("btn-calc-spot").addEventListener("click", calcSpot);
+    document.getElementById("btn-fetch-price-spot").addEventListener("click", fetchPriceSpot);
 
-    btn.addEventListener("click", () => {
-        const capital = parseFloat(document.getElementById("capital")?.value);
-        const entry   = parseFloat(document.getElementById("entry")?.value);
-        const exit    = parseFloat(document.getElementById("exit")?.value);
-        const stopVal = document.getElementById("sl")?.value;
-        const stop    = stopVal ? parseFloat(stopVal) : null;
-        const feePct  = parseFloat(document.getElementById("fee")?.value);
+    updateOfflineStatus();
+    window.addEventListener("online", updateOfflineStatus);
+    window.addEventListener("offline", updateOfflineStatus);
 
-        // ---- VALIDATION ----
-        if (!capital || capital <= 0) return showError("Enter valid margin.");
-        if (!entry || entry <= 0)     return showError("Entry price required.");
-        if (!exit || exit <= 0)       return showError("Exit price required.");
-        if (!feePct || feePct < 0)    return showError("Fee must be >= 0.");
 
-        // ---- CALCULATIONS ----
-        const positionSize = capital / entry; // amount of coin (spot always x1)
+    function calcSpot() {
+        const symbol = document.getElementById("symbol").value.trim().toUpperCase();
+        const capital = parseFloat(document.getElementById("capital").value) || 0;
+        const entry = parseFloat(document.getElementById("entry").value) || 0;
+        const tp = parseFloat(document.getElementById("tp").value) || 0;
+        const slVal = document.getElementById("sl").value;
+        const sl = slVal ? parseFloat(slVal) : null;
+        const feePct = parseFloat(document.getElementById("fee").value) || 0;
 
-        const grossProfit = (exit - entry) * positionSize;
+        if (!capital || !entry || !tp) {
+            resultEl.innerHTML = "<b style='color:#f55'>Fill required fields.</b>";
+            return;
+        }
+
+        const size = capital / entry; // how much coin you get
+
+        const profitPerCoin = tp - entry;
+        const grossProfit = profitPerCoin * size;
 
         const feeRate = feePct / 100;
-
-        const volumeEntry = positionSize * entry;
-        const volumeExit  = positionSize * exit;
-
-        const totalFees = (volumeEntry + volumeExit) * feeRate;
+        const feeBuy = capital * feeRate;
+        const feeSell = (size * tp) * feeRate;
+        const totalFees = feeBuy + feeSell;
 
         const netProfit = grossProfit - totalFees;
         const roe = (netProfit / capital) * 100;
 
-        let riskHTML = "";
-
-        // ---- STOP LOSS CALC ----
-        if (stop && stop > 0) {
-            const lossPerCoin = entry - stop;
-
+        let slBlock = "";
+        if (sl && sl > 0) {
+            const lossPerCoin = entry - sl;
             if (lossPerCoin > 0) {
-                const grossLoss = lossPerCoin * positionSize;
-
-                const volumeStop = positionSize * stop;
-                const feesSL = (volumeEntry + volumeStop) * feeRate;
-
-                const netLoss = grossLoss + feesSL;
+                const grossLoss = lossPerCoin * size;
+                const feeStop = (size * sl) * feeRate;
+                const netLoss = grossLoss + feeBuy + feeStop;
                 const riskPct = (netLoss / capital) * 100;
-                const rr = netLoss > 0 ? netProfit / netLoss : "---";
+                const rr = netLoss > 0 ? netProfit / netLoss : null;
 
-                riskHTML = `
-                    <div class="result-item risk">
-                        <h4>Risk</h4>
-                        <p>Potential loss: <b>-${netLoss.toFixed(2)}$</b></p>
-                        <p>Risk %: <b>-${riskPct.toFixed(2)}%</b></p>
-                        <p>R:R = <b>${typeof rr === "number" ? rr.toFixed(2) : rr}</b></p>
-                    </div>
+                slBlock = `
+                    <br><b>Stop-loss:</b><br>
+                    SL loss: -${netLoss.toFixed(2)} $<br>
+                    Risk: -${riskPct.toFixed(2)} %<br>
+                    R:R = ${rr ? rr.toFixed(2) : "—"}
                 `;
             }
         }
 
-        // ---- RENDER RESULT ----
-        resultBlock.innerHTML = `
-            <div class="result-item">
-                <p><b>Position size:</b> ${positionSize.toFixed(6)} units</p>
-                <p><b>Gross profit:</b> ${grossProfit.toFixed(2)}$</p>
-                <p><b>Total fees:</b> ${totalFees.toFixed(2)}$</p>
-                <p><b>Net profit:</b> ${netProfit.toFixed(2)}$</p>
-                <p><b>ROE:</b> ${roe.toFixed(2)}%</p>
-            </div>
-            ${riskHTML}
+        resultEl.innerHTML = `
+            <b>Symbol:</b> ${symbol || "-"}<br>
+            Size: ${size.toFixed(6)}<br>
+            Gross profit: ${grossProfit.toFixed(2)} $<br>
+            Fees: ${totalFees.toFixed(2)} $<br>
+            <b>Net profit: ${netProfit.toFixed(2)} $</b><br>
+            ROE: ${roe.toFixed(2)} %
+            ${slBlock}
         `;
-    });
+    }
 
-    // === Helper: show errors ===
-    function showError(msg) {
-        resultBlock.innerHTML = `<div class="error">${msg}</div>`;
+
+    async function fetchPriceSpot() {
+        const symbol = document.getElementById("symbol").value.trim().toUpperCase();
+        if (!symbol) {
+            resultEl.innerHTML = "<b style='color:#f55'>Enter symbol first.</b>";
+            return;
+        }
+        if (!navigator.onLine) {
+            resultEl.innerHTML = "<b style='color:#f55'>Offline.</b>";
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+            const data = await res.json();
+
+            if (data.price) {
+                document.getElementById("entry").value = parseFloat(data.price);
+                resultEl.innerHTML = `<b>Fetched price:</b> ${data.price}`;
+            } else {
+                resultEl.innerHTML = "<b style='color:#f55'>Symbol not found.</b>";
+            }
+        } catch (e) {
+            resultEl.innerHTML = "<b style='color:#f55'>Fetch error.</b>";
+        }
+    }
+
+
+    function updateOfflineStatus() {
+        const indicator = document.getElementById("offline-indicator");
+        if (navigator.onLine) {
+            indicator.textContent = "Online";
+            indicator.classList.remove("offline");
+            indicator.classList.add("online");
+        } else {
+            indicator.textContent = "Offline";
+            indicator.classList.remove("online");
+            indicator.classList.add("offline");
+        }
     }
 });
