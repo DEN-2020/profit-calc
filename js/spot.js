@@ -1,112 +1,136 @@
-// spot.js — final stable version
-
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("spot-form");
-    const resultEl = document.getElementById("spot-result");
-
-    document.getElementById("btn-calc-spot").addEventListener("click", calcSpot);
-    document.getElementById("btn-fetch-price-spot").addEventListener("click", fetchPriceSpot);
-
-    updateOfflineStatus();
-    window.addEventListener("online", updateOfflineStatus);
-    window.addEventListener("offline", updateOfflineStatus);
-
-
-    function calcSpot() {
-        const symbol = document.getElementById("symbol").value.trim().toUpperCase();
-        const capital = parseFloat(document.getElementById("capital").value) || 0;
-        const entry = parseFloat(document.getElementById("entry").value) || 0;
-        const tp = parseFloat(document.getElementById("tp").value) || 0;
-        const slVal = document.getElementById("sl").value;
-        const sl = slVal ? parseFloat(slVal) : null;
-        const feePct = parseFloat(document.getElementById("fee").value) || 0;
-
-        if (!capital || !entry || !tp) {
-            resultEl.innerHTML = "<b style='color:#f55'>Fill required fields.</b>";
-            return;
-        }
-
-        const size = capital / entry; // how much coin you get
-
-        const profitPerCoin = tp - entry;
-        const grossProfit = profitPerCoin * size;
-
-        const feeRate = feePct / 100;
-        const feeBuy = capital * feeRate;
-        const feeSell = (size * tp) * feeRate;
-        const totalFees = feeBuy + feeSell;
-
-        const netProfit = grossProfit - totalFees;
-        const roe = (netProfit / capital) * 100;
-
-        let slBlock = "";
-        if (sl && sl > 0) {
-            const lossPerCoin = entry - sl;
-            if (lossPerCoin > 0) {
-                const grossLoss = lossPerCoin * size;
-                const feeStop = (size * sl) * feeRate;
-                const netLoss = grossLoss + feeBuy + feeStop;
-                const riskPct = (netLoss / capital) * 100;
-                const rr = netLoss > 0 ? netProfit / netLoss : null;
-
-                slBlock = `
-                    <br><b>Stop-loss:</b><br>
-                    SL loss: -${netLoss.toFixed(2)} $<br>
-                    Risk: -${riskPct.toFixed(2)} %<br>
-                    R:R = ${rr ? rr.toFixed(2) : "—"}
-                `;
-            }
-        }
-
-        resultEl.innerHTML = `
-            <b>Symbol:</b> ${symbol || "-"}<br>
-            Size: ${size.toFixed(6)}<br>
-            Gross profit: ${grossProfit.toFixed(2)} $<br>
-            Fees: ${totalFees.toFixed(2)} $<br>
-            <b>Net profit: ${netProfit.toFixed(2)} $</b><br>
-            ROE: ${roe.toFixed(2)} %
-            ${slBlock}
-        `;
-    }
+// --------------------------
+// Offline Indicator
+// --------------------------
+function updateOfflineStatus() {
+  const ind = document.getElementById("offline-indicator");
+  if (navigator.onLine) {
+    ind.textContent = "Online";
+    ind.classList.remove("offline");
+    ind.classList.add("online");
+  } else {
+    ind.textContent = "Offline";
+    ind.classList.remove("online");
+    ind.classList.add("offline");
+  }
+}
+window.addEventListener("online", updateOfflineStatus);
+window.addEventListener("offline", updateOfflineStatus);
+updateOfflineStatus();
 
 
-    async function fetchPriceSpot() {
-        const symbol = document.getElementById("symbol").value.trim().toUpperCase();
-        if (!symbol) {
-            resultEl.innerHTML = "<b style='color:#f55'>Enter symbol first.</b>";
-            return;
-        }
-        if (!navigator.onLine) {
-            resultEl.innerHTML = "<b style='color:#f55'>Offline.</b>";
-            return;
-        }
+// --------------------------
+// Local Storage
+// --------------------------
+function loadSaved() {
+  ["symbol","capital","entry","tp","sl","fee"].forEach(id=>{
+    const val = localStorage.getItem("spot_"+id);
+    if(val!==null) document.getElementById(id).value = val;
+  });
+}
+function saveValue(id) {
+  localStorage.setItem("spot_"+id, document.getElementById(id).value);
+}
 
-        try {
-            const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-            const data = await res.json();
-
-            if (data.price) {
-                document.getElementById("entry").value = parseFloat(data.price);
-                resultEl.innerHTML = `<b>Fetched price:</b> ${data.price}`;
-            } else {
-                resultEl.innerHTML = "<b style='color:#f55'>Symbol not found.</b>";
-            }
-        } catch (e) {
-            resultEl.innerHTML = "<b style='color:#f55'>Fetch error.</b>";
-        }
-    }
-
-
-    function updateOfflineStatus() {
-        const indicator = document.getElementById("offline-indicator");
-        if (navigator.onLine) {
-            indicator.textContent = "Online";
-            indicator.classList.remove("offline");
-            indicator.classList.add("online");
-        } else {
-            indicator.textContent = "Offline";
-            indicator.classList.remove("online");
-            indicator.classList.add("offline");
-        }
-    }
+["symbol","capital","entry","tp","sl","fee"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", ()=>saveValue(id));
 });
+loadSaved();
+
+
+// --------------------------
+// Main Spot Calculator
+// --------------------------
+document.getElementById("spot-calc-btn").addEventListener("click", ()=>{
+
+  const sym  = document.getElementById("symbol").value.trim();
+  const capital = parseFloat(document.getElementById("capital").value);
+  const entry   = parseFloat(document.getElementById("entry").value);
+  const tp      = parseFloat(document.getElementById("tp").value);
+  const slVal   = document.getElementById("sl").value;
+  const sl      = slVal===""? null : parseFloat(slVal);
+  const feePct  = parseFloat(document.getElementById("fee").value);
+
+  const out = document.getElementById("spot-result");
+
+  if(!capital || !entry || !tp){
+    out.innerHTML = `<div class='error'>Fill capital, entry and TP</div>`;
+    return;
+  }
+
+  const size = capital / entry;
+  const profit = (tp - entry) * size;
+
+  const feeRate = feePct/100;
+  const feeEntry = size*entry * feeRate;
+  const feeExit  = size*tp    * feeRate;
+  const totalFees = feeEntry + feeExit;
+
+  const net = profit - totalFees;
+  const roe = (net/capital)*100;
+
+  let riskBlock = "";
+  if(sl){
+    const slLoss = (entry - sl) * size;
+    const feeSlExit = size*sl * feeRate;
+    const netLoss = slLoss + feeEntry + feeSlExit;
+    const riskPct = (netLoss/capital)*100;
+    const rr = netLoss>0 ? net/netLoss : null;
+
+    riskBlock = `
+      <br><b>SL Risk:</b><br>
+      Loss: -${netLoss.toFixed(2)}$<br>
+      Risk %: -${riskPct.toFixed(2)}%<br>
+      R:R = ${rr? rr.toFixed(2):"—"}
+    `;
+  }
+
+  out.innerHTML = `
+    <b>Symbol:</b> ${sym || "—"} <br>
+    <b>Position size:</b> ${size.toFixed(6)} ${sym || ""}<br>
+    <b>Gross profit:</b> ${profit.toFixed(2)}$<br>
+    <b>Total fees:</b> ${totalFees.toFixed(2)}$<br>
+    <b>Net profit:</b> ${net.toFixed(2)}$<br>
+    <b>ROE:</b> ${roe.toFixed(2)}%
+    ${riskBlock}
+  `;
+
+  drawChart(entry, tp, sl);
+});
+
+
+// --------------------------
+// Simple Visual Chart (SVG)
+// --------------------------
+function drawChart(entry, tp, sl){
+  const box = document.getElementById("spot-chart");
+  box.innerHTML = "";
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("width","100%");
+  svg.setAttribute("height","160");
+  svg.style.borderRadius = "12px";
+
+  const minP = sl ? Math.min(sl, entry, tp) : Math.min(entry,tp);
+  const maxP = sl ? Math.max(sl, entry, tp) : Math.max(entry,tp);
+
+  function y(v){
+    return 150 - ((v-minP)/(maxP-minP))*140;
+  }
+
+  const line = (val,color)=>{
+    const g = document.createElementNS("http://www.w3.org/2000/svg","line");
+    g.setAttribute("x1","10");
+    g.setAttribute("x2","95%");
+    g.setAttribute("y1",y(val));
+    g.setAttribute("y2",y(val));
+    g.setAttribute("stroke",color);
+    g.setAttribute("stroke-width","2");
+    svg.appendChild(g);
+  };
+
+  line(entry,"#4bb8ff");
+  line(tp,"#51ff84");
+  if(sl) line(sl,"#ff5e5e");
+
+  box.appendChild(svg);
+}
