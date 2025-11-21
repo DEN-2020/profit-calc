@@ -1,87 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Spot Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+// -------------------------------------------
+// Offline indicator
+// -------------------------------------------
+function updateOfflineStatus() {
+  const ind = document.getElementById("offline-indicator");
+  if (navigator.onLine) {
+    ind.textContent = "Online";
+    ind.classList.remove("offline");
+    ind.classList.add("online");
+  } else {
+    ind.textContent = "Offline";
+    ind.classList.remove("online");
+    ind.classList.add("offline");
+  }
+}
+window.addEventListener("online", updateOfflineStatus);
+window.addEventListener("offline", updateOfflineStatus);
+updateOfflineStatus();
 
-  <!-- main shared styles -->
-  <link rel="stylesheet" href="css/main.css">
 
-  <!-- page-specific -->
-  <link rel="stylesheet" href="css/spot.css">
-  <script src="js/spot.js" defer></script>
-</head>
+// -------------------------------------------
+// LocalStorage Save + Load
+// -------------------------------------------
+const fields = ["symbol","capital","entry","tp","sl","fee"];
 
-<body>
-<header class="app-header">
-  <div class="logo">ProfitCalc</div>
+function loadSaved() {
+  fields.forEach(id=>{
+    const val = localStorage.getItem("spot_"+id);
+    if(val!==null) document.getElementById(id).value = val;
+  });
+}
 
-  <nav class="nav">
-    <a href="index.html">Home</a>
-    <a href="spot.html" class="active">Spot</a>
-    <a href="perp.html">Perp</a>
-  </nav>
+function saveField(id) {
+  localStorage.setItem("spot_"+id, document.getElementById(id).value);
+}
 
-  <div class="status">
-    <span id="offline-indicator" class="status-indicator offline">Offline</span>
-  </div>
-</header>
+fields.forEach(id=>{
+  document.getElementById(id).addEventListener("input", ()=>saveField(id));
+});
 
-<main class="app-main">
+loadSaved();
 
-  <section class="card">
-    <h1>Spot Trading</h1>
 
-    <form class="form" id="spot-form">
+// -------------------------------------------
+// Spot Calculator
+// -------------------------------------------
+document.getElementById("spot-calc-btn").addEventListener("click", ()=>{
 
-      <div class="form-row">
-        <label for="symbol">Symbol</label>
-        <input id="symbol" type="text" placeholder="BTC, ETH, etc">
-      </div>
+  const symbol  = document.getElementById("symbol").value.trim();
+  const capital = parseFloat(document.getElementById("capital").value);
+  const entry   = parseFloat(document.getElementById("entry").value);
+  const tp      = parseFloat(document.getElementById("tp").value);
+  const slVal   = document.getElementById("sl").value;
+  const sl      = slVal ? parseFloat(slVal) : null;
+  const feePct  = parseFloat(document.getElementById("fee").value);
 
-      <div class="form-row">
-        <label for="capital">Capital ($)</label>
-        <input id="capital" type="number" step="0.01" value="50">
-      </div>
+  const out = document.getElementById("spot-result");
 
-      <div class="form-row">
-        <label for="entry">Entry price</label>
-        <input id="entry" type="number" step="0.01" value="1800">
-      </div>
+  if (!capital || !entry || !tp) {
+    out.innerHTML = `<div class='error'>Please fill Capital, Entry and TP</div>`;
+    return;
+  }
 
-      <div class="form-row">
-        <label for="tp">Take profit</label>
-        <input id="tp" type="number" step="0.01" value="3000">
-      </div>
+  // position size
+  const size = capital / entry;
 
-      <div class="form-row">
-        <label for="sl">Stop loss</label>
-        <input id="sl" type="number" step="0.01" placeholder="Optional">
-      </div>
+  // profit to TP
+  const grossProfit = (tp - entry) * size;
 
-      <div class="form-row">
-        <label for="fee">Fee, % (per side)</label>
-        <input id="fee" type="number" step="0.01" value="0.1">
-      </div>
+  // fees
+  const feeRate = feePct / 100;
+  const feeEntry = size * entry * feeRate;
+  const feeExit  = size * tp    * feeRate;
+  const totalFees = feeEntry + feeExit;
 
-      <div class="form-actions">
-        <button type="button" id="spot-calc-btn">Calculate</button>
-      </div>
+  const netProfit = grossProfit - totalFees;
+  const roe = (netProfit / capital) * 100;
 
-    </form>
-  </section>
+  // risk block
+  let riskBlock = "";
+  if(sl){
+    const grossLoss = (entry - sl) * size;
+    const feeSlExit = size * sl * feeRate;
+    const netLoss = grossLoss + feeEntry + feeSlExit;
+    const riskPct = (netLoss / capital) * 100;
+    const rr = netLoss > 0 ? (netProfit / netLoss) : null;
 
-  <section class="card">
-    <h2>Result</h2>
-    <div id="spot-result" class="result-block"></div>
-  </section>
+    riskBlock = `
+      <br><b>SL Risk:</b><br>
+      Loss: -${netLoss.toFixed(2)} $<br>
+      Risk %: -${riskPct.toFixed(2)} %<br>
+      R:R = ${rr ? rr.toFixed(2) : "—"}
+    `;
+  }
 
-  <section class="card">
-    <h2>Position View</h2>
-    <div id="spot-chart" class="chart-placeholder"></div>
-  </section>
+  out.innerHTML = `
+    <b>Symbol:</b> ${symbol || "—"} <br>
+    <b>Position Size:</b> ${size.toFixed(6)} ${symbol}<br>
+    <b>Gross Profit:</b> ${grossProfit.toFixed(2)} $<br>
+    <b>Total Fees:</b> ${totalFees.toFixed(2)} $<br>
+    <b>Net Profit:</b> ${netProfit.toFixed(2)} $<br>
+    <b>ROE:</b> ${roe.toFixed(2)} %
+    ${riskBlock}
+  `;
 
-</main>
-</body>
-</html>
+  drawChart(entry, tp, sl);
+});
+
+
+// -------------------------------------------
+// Chart
+// -------------------------------------------
+function drawChart(entry, tp, sl){
+  const box = document.getElementById("spot-chart");
+  box.innerHTML = "";
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("width","100%");
+  svg.setAttribute("height","180");
+
+  const prices = [entry, tp];
+  if(sl) prices.push(sl);
+
+  const minP = Math.min(...prices);
+  const maxP = Math.max(...prices);
+
+  const y = v => 160 - ((v - minP) / (maxP - minP)) * 140;
+
+  function line(val, color, label){
+    const g = document.createElementNS(svg.namespaceURI,"g");
+
+    const l = document.createElementNS(svg.namespaceURI,"line");
+    l.setAttribute("x1","20");
+    l.setAttribute("x2","95%");
+    l.setAttribute("y1",y(val));
+    l.setAttribute("y2",y(val));
+    l.setAttribute("stroke",color);
+    l.setAttribute("stroke-width","2");
+    g.appendChild(l);
+
+    const t = document.createElementNS(svg.namespaceURI,"text");
+    t.setAttribute("x","25");
+    t.setAttribute("y", y(val)-5);
+    t.setAttribute("fill", color);
+    t.setAttribute("font-size","12");
+    t.textContent = `${label}: ${val}`;
+    g.appendChild(t);
+
+    svg.appendChild(g);
+  }
+
+  line(entry, "#4bb8ff", "Entry");
+  line(tp, "#51ff84", "TP");
+  if(sl) line(sl, "#ff5e5e", "SL");
+
+  box.appendChild(svg);
+}
