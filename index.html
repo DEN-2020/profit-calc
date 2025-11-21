@@ -1,309 +1,153 @@
-                                                  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Crypto Profit Tools</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="icons/icon.svg" sizes="any" type="image/svg+xml" />
-  <link rel="manifest" href="manifest.json" />
+<meta charset="UTF-8" />
+<title>ProfitCalc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Inline CSS -->
-  <style>
-    :root {
-      --overlay-color: rgba(0, 0, 0, 0.55);
-      --accent: #4bb8ff;
-      --accent-soft: rgba(75, 184, 255, 0.15);
-      --text: #f5f5f5;
-      --text-muted: #b0b0b0;
-      --card-bg: rgba(15, 15, 20, 0.9);
-      --border: rgba(255, 255, 255, 0.06);
-    }
+<!-- Manifest for PWA -->
+<link rel="manifest" href="manifest.json">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+/* === GLOBAL STYLES === */
+:root {
+  --bg-dark: rgba(0,0,0,0.65);
+  --card-bg: rgba(20,20,20,0.75);
+  --text: #e5e5e5;
+  --accent: #4bb8ff;
+  --border: #2c2c2c;
+}
 
-    body {
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      background: #02040a;
-      overflow: hidden;
-    }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+  background: #000 url("assets/bg.jpg") center/cover no-repeat fixed;
+}
 
-    /* Background image layer */
-    .bg-image {
-      position: fixed;
-      inset: 0;
-      background-image: url("img/bg.jpg"); /* <--- положишь свой файл сюда */
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      filter: saturate(1.1) contrast(1.05) blur(0px);
-      transform: scale(1.03); /* лёгкий зум, чтобы не было краёв */
-      z-index: -2;
-    }
+/* overlay darkness */
+body::before {
+  content:"";
+  position: fixed;
+  left:0; top:0;
+  width:100%; height:100%;
+  background: var(--bg-dark);
+  backdrop-filter: blur(4px);
+  z-index:-1;
+}
 
-    /* Dark overlay with color tint */
-    .bg-overlay {
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(circle at 10% 0%, rgba(75, 184, 255, 0.35), transparent 55%),
-        radial-gradient(circle at 90% 100%, rgba(165, 89, 255, 0.25), transparent 55%),
-        var(--overlay-color);
-      z-index: -1;
-    }
+/* header */
+header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  background: rgba(0,0,0,0.35);
+  border-bottom:1px solid var(--border);
+}
 
-    .layout {
-      width: 100%;
-      max-width: 480px;
-      padding: 20px 16px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+.logo {
+  font-size:20px;
+  font-weight:600;
+  color: var(--accent);
+}
 
-    .card {
-      width: 100%;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-      box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.7),
-        0 0 0 1px rgba(0, 0, 0, 0.5);
-      padding: 20px 18px 18px;
-      backdrop-filter: blur(14px);
-    }
+.nav a {
+  margin-left:10px;
+  text-decoration:none;
+  color: var(--text);
+  font-size:14px;
+}
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
+.nav a.active {
+  color: var(--accent);
+  font-weight:600;
+}
 
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+.status-indicator {
+  padding:4px 10px;
+  border-radius:6px;
+  font-size:12px;
+}
 
-    .title-block h1 {
-      font-size: 20px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
+.online { background:#1c7d29; }
+.offline { background:#7d1c1c; }
 
-    .title-block span {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
+/* content */
+main {
+  padding: 20px;
+}
 
-    /* Offline / online indicator – пока только UI, логику добавим позже */
-    .status-pill {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(0, 0, 0, 0.35);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+.card {
+  background:var(--card-bg);
+  padding:20px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  margin-bottom:20px;
+  backdrop-filter: blur(4px);
+}
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff6363; /* offline by default */
-      box-shadow: 0 0 8px rgba(255, 99, 99, 0.7);
-    }
+.card h1, .card h2 {
+  margin-top:0;
+  color:var(--accent);
+}
+</style>
 
-    .status-pill span strong {
-      color: #ffb3b3;
-      font-weight: 600;
-    }
+<script>
+// ONLINE / OFFLINE detector
+function updateStatus() {
+  const el = document.getElementById("status-dot");
+  if (navigator.onLine) {
+    el.textContent = "Online";
+    el.classList.remove("offline");
+    el.classList.add("online");
+  } else {
+    el.textContent = "Offline";
+    el.classList.remove("online");
+    el.classList.add("offline");
+  }
+}
 
-    .card-body {
-      margin-top: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+window.addEventListener("online", updateStatus);
+window.addEventListener("offline", updateStatus);
 
-    .description {
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--text-muted);
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 10px;
-      padding: 10px 10px;
-      border: 1px solid rgba(255, 255, 255, 0.03);
-    }
+window.onload = updateStatus;
+</script>
 
-    .description b {
-      color: var(--accent);
-    }
-
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 2px;
-    }
-
-    .btn {
-      width: 100%;
-      border-radius: 999px;
-      padding: 11px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-decoration: none;
-      color: var(--text);
-      background: rgba(10, 10, 14, 0.9);
-    }
-
-    .btn span.label {
-      display: block;
-    }
-
-    .btn span.sub {
-      display: block;
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--text-muted);
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #71d6ff);
-      color: #050711;
-      border-color: rgba(255, 255, 255, 0.35);
-      box-shadow:
-        0 12px 25px rgba(75, 184, 255, 0.35),
-        0 0 0 1px rgba(0, 0, 0, 0.5);
-    }
-
-    .btn-primary span.sub {
-      color: rgba(5, 7, 17, 0.7);
-    }
-
-    .btn-right-icon {
-      font-size: 16px;
-      opacity: 0.8;
-    }
-
-    .badge {
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: var(--accent-soft);
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .footer {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: var(--text-muted);
-      opacity: 0.9;
-    }
-
-    .footer span.highlight {
-      color: var(--accent);
-    }
-
-    @media (max-width: 380px) {
-      .card {
-        padding: 16px 14px 16px;
-        border-radius: 14px;
-      }
-
-      .title-block h1 {
-        font-size: 18px;
-      }
-
-      .buttons {
-        gap: 8px;
-      }
-
-      .btn {
-        padding: 10px 12px;
-        font-size: 13px;
-      }
-    }
-  </style>
+<!-- Service worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
 </head>
 
 <body>
-  <div class="bg-image"></div>
-  <div class="bg-overlay"></div>
+<header>
+  <div class="logo">ProfitCalc</div>
 
-  <div class="layout">
-    <div class="card">
-      <div class="card-header">
-        <div class="title-block">
-          <h1>Crypto Profit Tools</h1>
-          <span>Perpetual & Spot calculators in one place</span>
-        </div>
+  <nav class="nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="spot.html">Spot</a>
+    <a href="perp.html">Perp</a>
+  </nav>
 
-        <!-- Status pill – позже подвяжем к реальному offline/online -->
-        <div class="status-pill" id="status-pill">
-          <div class="status-dot" id="status-dot"></div>
-          <span><strong>Offline</strong></span>
-        </div>
-      </div>
+  <span id="status-dot" class="status-indicator offline">Offline</span>
+</header>
 
-      <div class="card-body">
-        <div class="description">
-          Plan your trades with <b>risk / reward</b>, fees and clear visual levels.
-          Choose what you need now:
-        </div>
+<main>
+  <section class="card">
+    <h1>Welcome</h1>
+    <p>
+      Choose calculator mode:
+    </p>
+    <p>
+      👉 <b>Spot</b> — simple calculations (no leverage).<br>
+      👉 <b>Perp</b> — futures with leverage, SL/TP, R:R.
+    </p>
+  </section>
+</main>
 
-        <div class="buttons">
-          <a href="perp.html" class="btn btn-primary">
-            <div>
-              <span class="label">Perpetual Futures</span>
-              <span class="sub">Leverage, liquidation, funding (online mode later)</span>
-            </div>
-            <span class="badge">PERP</span>
-          </a>
-
-          <a href="spot.html" class="btn">
-            <div>
-              <span class="label">Spot Calculator</span>
-              <span class="sub">Simple entries, TP / SL, R:R for spot trades</span>
-            </div>
-            <span class="btn-right-icon">➜</span>
-          </a>
-        </div>
-
-        <div class="footer">
-          <span>v0.1 • local only</span>
-          <span class="highlight">PWA ready</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
