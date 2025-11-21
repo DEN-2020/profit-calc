@@ -1,0 +1,66 @@
+/* Fullscreen background */
+body {
+    margin: 0;
+        padding: 0;
+            font-family: system-ui, sans-serif;
+                background: #000;
+                    color: #fff;
+                        height: 100vh;
+                            overflow: hidden;
+                            }
+
+                            /* Background image (replace bg.jpg in index.html) */
+                            .bg {
+                                position: fixed;
+                                    top: 0; left: 0;
+                                        width: 100%; height: 100%;
+                                            background-size: cover;
+                                                background-position: center;
+                                                    filter: brightness(0.45) blur(2px);
+                                                        z-index: -1;
+                                                        }
+
+                                                        /* Centered content */
+                                                        .container {
+                                                            width: 92%;
+                                                                max-width: 440px;
+                                                                    margin: 40px auto;
+                                                                        padding: 20px;
+                                                                            backdrop-filter: blur(12px) brightness(1.1);
+                                                                                background: rgba(20, 20, 20, 0.55);
+                                                                                    border-radius: 16px;
+                                                                                        border: 1px solid rgba(255,255,255,0.12);
+                                                                                        }
+
+                                                                                        /* Title */
+                                                                                        h1 {
+                                                                                            margin-top: 0;
+                                                                                                text-align: center;
+                                                                                                    color: #4bb8ff;
+                                                                                                        font-weight: 600;
+                                                                                                        }
+
+                                                                                                        /* Offline indicator button */
+                                                                                                        .status-btn {
+                                                                                                            margin-top: 20px;
+                                                                                                                width: 100%;
+                                                                                                                    padding: 12px;
+                                                                                                                        border-radius: 8px;
+                                                                                                                            border: none;
+                                                                                                                                font-size: 16px;
+                                                                                                                                    background: #333;
+                                                                                                                                        color: #fff;
+                                                                                                                                        }
+                                                                                                                                        .status-btn.online { background: #0fa; color: #000; }
+                                                                                                                                        .status-btn.offline { background: #f33; color: #000; }
+
+                                                                                                                                        /* Chart block */
+                                                                                                                                        .chart-box {
+                                                                                                                                            margin-top: 20px;
+                                                                                                                                                width: 100%;
+                                                                                                                                                    height: 200px;
+                                                                                                                                                        background: rgba(0,0,0,0.4);
+                                                                                                                                                            border-radius: 12px;
+                                                                                                                                                                border: 1px solid rgba(255,255,255,0.15);
+                                                                                                                                                                    overflow: hidden;
+                                                                                                                                                                    }

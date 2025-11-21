@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+    <title>Spot Calculator</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <!-- main styles for all pages -->
+          <link rel="stylesheet" href="css/main.css" />
+
+            <!-- JS logic for spot page -->
+              <script src="js/spot.js" defer></script>
+              </head>
+              <body>
+                <header class="app-header">
+                    <div class="logo">ProfitCalc</div>
+                        <nav class="nav">
+                              <a href="index.html">Home</a>
+                                    <a href="spot.html" class="active">Spot</a>
+                                          <a href="perp.html">Perp</a>
+                                              </nav>
+                                                  <div class="status">
+                                                        <span id="offline-indicator" class="status-indicator offline">
+                                                                Offline
+                                                                      </span>
+                                                                          </div>
+                                                                            </header>
+
+                                                                              <main class="app-main">
+                                                                                  <section class="card">
+                                                                                        <h1>Spot</h1>
+
+                                                                                              <form id="spot-form" class="form">
+                                                                                                      <div class="form-row">
+                                                                                                                <label for="spot-symbol">Symbol</label>
+                                                                                                                          <input id="spot-symbol" type="text" placeholder="e.g. ETHUSDT" />
+                                                                                                                                  </div>
+
+                                                                                                                                          <div class="form-row">
+                                                                                                                                                    <label for="spot-capital">Capital, $</label>
+                                                                                                                                                              <input id="spot-capital" type="number" step="0.01" value="50" />
+                                                                                                                                                                      </div>
+
+                                                                                                                                                                              <div class="form-row">
+                                                                                                                                                                                        <label for="spot-entry">Entry price</label>
+                                                                                                                                                                                                  <input id="spot-entry" type="number" step="0.01" value="1800" />
+                                                                                                                                                                                                          </div>
+
+                                                                                                                                                                                                                  <div class="form-row">
+                                                                                                                                                                                                                            <label for="spot-tp">Take profit</label>
+                                                                                                                                                                                                                                      <input id="spot-tp" type="number" step="0.01" value="3000" />
+                                                                                                                                                                                                                                              </div>
+
+                                                                                                                                                                                                                                                      <div class="form-row">
+                                                                                                                                                                                                                                                                <label for="spot-sl">Stop loss</label>
+                                                                                                                                                                                                                                                                          <input id="spot-sl" type="number" step="0.01" placeholder="Optional" />
+                                                                                                                                                                                                                                                                                  </div>
+
+                                                                                                                                                                                                                                                                                          <div class="form-row">
+                                                                                                                                                                                                                                                                                                    <label for="spot-fee">Fee per side, %</label>
+                                                                                                                                                                                                                                                                                                              <input id="spot-fee" type="number" step="0.01" value="0.1" />
+                                                                                                                                                                                                                                                                                                                      </div>
+
+                                                                                                                                                                                                                                                                                                                              <div class="form-actions">
+                                                                                                                                                                                                                                                                                                                                        <button type="button" id="btn-calc-spot">Calculate</button>
+                                                                                                                                                                                                                                                                                                                                                  <button type="button" id="btn-fetch-spot-price">Fetch price</button>
+                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                </form>
+                                                                                                                                                                                                                                                                                                                                                                    </section>
+
+                                                                                                                                                                                                                                                                                                                                                                        <section class="card">
+                                                                                                                                                                                                                                                                                                                                                                              <h2>Result</h2>
+                                                                                                                                                                                                                                                                                                                                                                                    <div id="spot-result" class="result-block">
+                                                                                                                                                                                                                                                                                                                                                                                            <!-- spot.js will render summary here -->
+                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                                                                                                                                                                                                      </section>
+
+                                                                                                                                                                                                                                                                                                                                                                                                          <section class="card">
+                                                                                                                                                                                                                                                                                                                                                                                                                <h2>Position View</h2>
+                                                                                                                                                                                                                                                                                                                                                                                                                      <div id="spot-chart" class="chart-placeholder">
+                                                                                                                                                                                                                                                                                                                                                                                                                              <!-- later: chart for entry / TP / SL -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                        </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                          </main>
+                                                                                                                                                                                                                                                                                                                                                                                                                                          </body>
+                                                                                                                                                                                                                                                                                                                                                                                                                                          </html>

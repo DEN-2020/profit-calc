@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 720">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#081b21"/>
+      <stop offset="1" stop-color="#062e2c"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" x2="1">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#10b981" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="720" fill="url(#bg)"/>
+  <g transform="rotate(-12 720 360)">
+    <rect x="-200" y="100" width="1600" height="220" rx="40" fill="url(#acc)" opacity="0.08"/>
+    <rect x="-280" y="300" width="1600" height="180" rx="40" fill="url(#acc)" opacity="0.06"/>
+  </g>
+  <g fill="#fff" font-family="Arial, Helvetica, sans-serif" font-weight="700">
+    <text x="60" y="140" font-size="48">Profit Calculator</text>
+    <text x="60" y="200" font-size="20" opacity="0.8">Quickly estimate fees, profit & ROI</text>
+  </g>
+</svg>
