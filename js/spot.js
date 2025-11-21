@@ -38,7 +38,7 @@ loadSaved();
 
 
 // --------------------------
-// Main Spot Calculator
+// MAIN CALCULATOR
 // --------------------------
 document.getElementById("spot-calc-btn").addEventListener("click", ()=>{
 
@@ -99,52 +99,51 @@ document.getElementById("spot-calc-btn").addEventListener("click", ()=>{
 
 
 // --------------------------
-// Simple Visual Chart (SVG)
+// BEAUTIFUL PRICE CHART
 // --------------------------
-function drawChart(entry, tp, sl) {
+function drawChart(entry, tp, sl){
   const box = document.getElementById("spot-chart");
   box.innerHTML = "";
 
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "220");
-  svg.style.borderRadius = "12px";
-  svg.style.background = "linear-gradient(180deg, #1a1a1a, #0f0f0f)";
+  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("width","100%");
+  svg.setAttribute("height","240");
+  svg.style.borderRadius = "14px";
+  svg.style.background = "linear-gradient(180deg,#0f0f0f,#050505)";
 
-  const values = sl ? [entry, tp, sl] : [entry, tp];
-  const minP = Math.min(...values);
-  const maxP = Math.max(...values);
-  const pad = (maxP - minP) * 0.25;
+  const values = sl ? [sl,entry,tp] : [entry,tp];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const pad = (max-min)*0.25;
+  const minY=min-pad;
+  const maxY=max+pad;
 
-  const minY = minP - pad;
-  const maxY = maxP + pad;
+  const scale = v => 220 - ((v - minY) / (maxY - minY)) * 200;
 
-  function y(val) {
-    return 200 - ((val - minY) / (maxY - minY)) * 180;
+  function line(v,color,label){
+    const y = scale(v);
+
+    const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+    ln.setAttribute("x1","10");
+    ln.setAttribute("x2","95%");
+    ln.setAttribute("y1",y);
+    ln.setAttribute("y2",y);
+    ln.setAttribute("stroke",color);
+    ln.setAttribute("stroke-width","3");
+    svg.appendChild(ln);
+
+    const txt=document.createElementNS("http://www.w3.org/2000/svg","text");
+    txt.textContent = `${label} ${v}`;
+    txt.setAttribute("x","14");
+    txt.setAttribute("y",y-6);
+    txt.setAttribute("fill",color);
+    txt.setAttribute("font-size","14");
+    svg.appendChild(txt);
   }
 
-  function drawLine(price, color, label) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", "10");
-    line.setAttribute("x2", "95%");
-    line.setAttribute("y1", y(price));
-    line.setAttribute("y2", y(price));
-    line.setAttribute("stroke", color);
-    line.setAttribute("stroke-width", "2");
-    svg.appendChild(line);
-
-    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", "92%");
-    text.setAttribute("y", y(price) - 5);
-    text.setAttribute("fill", color);
-    text.setAttribute("font-size", "12");
-    text.textContent = `${label}: ${price}`;
-    svg.appendChild(text);
-  }
-
-  drawLine(entry, "#4bb8ff", "Entry");
-  drawLine(tp, "#51ff84", "TP");
-  if (sl) drawLine(sl, "#ff5e5e", "SL");
+  line(entry,"#4bb8ff","Entry");
+  line(tp,"#51ff84","TP");
+  if(sl) line(sl,"#ff5e5e","SL");
 
   box.appendChild(svg);
 }
