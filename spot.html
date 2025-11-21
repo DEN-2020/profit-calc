@@ -4,89 +4,86 @@
   <meta charset="UTF-8" />
   <title>Spot Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
-  <!-- Main styles -->
-  <link rel="stylesheet" href="css/main.css" />
 
-  <!-- JS Logic -->
+  <!-- main shared styles -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- page-specific -->
+  <link rel="stylesheet" href="css/spot.css">
   <script src="js/spot.js" defer></script>
 </head>
 
 <body>
-  <!-- Header -->
-  <header class="app-header">
-    <div class="logo">ProfitCalc</div>
+<header class="app-header">
+  <div class="logo">ProfitCalc</div>
 
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="spot.html" class="active">Spot</a>
-      <a href="perp.html">Perp</a>
-    </nav>
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="spot.html" class="active">Spot</a>
+    <a href="perp.html">Perp</a>
+  </nav>
 
-    <div class="status">
-      <span id="offline-indicator" class="status-indicator offline">Offline</span>
+  <div class="status">
+    <span id="offline-indicator" class="status-indicator offline">Offline</span>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <section class="card">
+    <h1>Spot Trading</h1>
+
+    <form class="form" id="spot-form">
+
+      <div class="form-row">
+        <label for="symbol">Symbol</label>
+        <input id="symbol" type="text" placeholder="BTC, ETH, etc">
+      </div>
+
+      <div class="form-row">
+        <label for="capital">Capital ($)</label>
+        <input id="capital" type="number" step="0.01" value="50">
+      </div>
+
+      <div class="form-row">
+        <label for="entry">Entry price</label>
+        <input id="entry" type="number" step="0.01" value="1800">
+      </div>
+
+      <div class="form-row">
+        <label for="tp">Take profit</label>
+        <input id="tp" type="number" step="0.01" value="3000">
+      </div>
+
+      <div class="form-row">
+        <label for="sl">Stop loss</label>
+        <input id="sl" type="number" step="0.01" placeholder="Optional">
+      </div>
+
+      <div class="form-row">
+        <label for="fee">Fee, % (per side)</label>
+        <input id="fee" type="number" step="0.01" value="0.1">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="spot-calc-btn">Calculate</button>
+      </div>
+
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Result</h2>
+    <div id="spot-result" class="result-block"></div>
+  </section>
+
+  <section class="card">
+    <h2>Position View</h2>
+    <div id="spot-chart" class="chart-placeholder">
+      <!-- Spot chart (SVG) will be rendered by JS -->
     </div>
-  </header>
+  </section>
+</main>
 
-  <!-- Main -->
-  <main class="app-main">
-
-    <!-- Spot Card -->
-    <section class="card">
-      <h1>Spot Calculator</h1>
-
-      <form id="spot-form" class="form">
-
-        <div class="form-row">
-          <label>Symbol</label>
-          <input id="symbol" type="text" placeholder="e.g. ETHUSDT" />
-        </div>
-
-        <div class="form-row">
-          <label>Amount, $</label>
-          <input id="amount" type="number" step="0.01" value="50" />
-        </div>
-
-        <div class="form-row">
-          <label>Entry price</label>
-          <input id="entry" type="number" step="0.01" value="1800" />
-        </div>
-
-        <div class="form-row">
-          <label>Take profit</label>
-          <input id="tp" type="number" step="0.01" value="2000" />
-        </div>
-
-        <div class="form-row">
-          <label>Stop loss</label>
-          <input id="sl" type="number" step="0.01" placeholder="Optional" />
-        </div>
-
-        <div class="form-row">
-          <label>Fee per side %</label>
-          <input id="fee" type="number" step="0.01" value="0.1" />
-        </div>
-
-        <div class="form-actions">
-          <button type="button" id="btn-calc-spot">Calculate</button>
-          <button type="button" id="btn-fetch-price">Fetch price</button>
-        </div>
-
-      </form>
-    </section>
-
-    <!-- Result -->
-    <section class="card">
-      <h2>Result</h2>
-      <div id="spot-result" class="result-block"></div>
-    </section>
-
-    <!-- Chart -->
-    <section class="card">
-      <h2>Position View</h2>
-      <div id="spot-chart" class="chart-placeholder">Chart coming soon…</div>
-    </section>
-
-  </main>
 </body>
 </html>
