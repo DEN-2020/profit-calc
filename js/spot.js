@@ -1,130 +1,81 @@
+// =============== Spot Calculator Logic ===============
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("spot-form");
-  const resultEl = document.getElementById("spot-result");
-  const chartEl = document.getElementById("spot-chart");
-  const statusEl = document.getElementById("offline-indicator");
+    const btn = document.getElementById("btn-calc-spot");
+    const resultBlock = document.getElementById("spot-result");
 
-  function updateStatus() {
-    if (!statusEl) return;
-    if (navigator.onLine) {
-      statusEl.textContent = "Online";
-      statusEl.classList.remove("offline");
-      statusEl.classList.add("online");
-    } else {
-      statusEl.textContent = "Offline";
-      statusEl.classList.remove("online");
-      statusEl.classList.add("offline");
-    }
-  }
+    if (!btn) return;
 
-  function renderChart(entry, tp, sl) {
-    if (!chartEl || !entry || !tp) return;
+    btn.addEventListener("click", () => {
+        const capital = parseFloat(document.getElementById("capital")?.value);
+        const entry   = parseFloat(document.getElementById("entry")?.value);
+        const exit    = parseFloat(document.getElementById("exit")?.value);
+        const stopVal = document.getElementById("sl")?.value;
+        const stop    = stopVal ? parseFloat(stopVal) : null;
+        const feePct  = parseFloat(document.getElementById("fee")?.value);
 
-    const min = Math.min(entry, tp, sl || entry);
-    const max = Math.max(entry, tp, sl || entry);
-    const span = max - min || 1;
+        // ---- VALIDATION ----
+        if (!capital || capital <= 0) return showError("Enter valid margin.");
+        if (!entry || entry <= 0)     return showError("Entry price required.");
+        if (!exit || exit <= 0)       return showError("Exit price required.");
+        if (!feePct || feePct < 0)    return showError("Fee must be >= 0.");
 
-    function pos(v) {
-      return 12 + ((v - min) / span) * (chartEl.clientWidth - 24 || 100);
-    }
+        // ---- CALCULATIONS ----
+        const positionSize = capital / entry; // amount of coin (spot always x1)
 
-    chartEl.innerHTML = `
-      <div class="chart-axis"></div>
-      <div class="chart-marker entry" style="left:${pos(entry)}px"></div>
-      <div class="chart-label" style="left:${pos(entry)}px">Entry ${entry}</div>
-      <div class="chart-marker tp" style="left:${pos(tp)}px"></div>
-      <div class="chart-label" style="left:${pos(tp)}px">TP ${tp}</div>
-      ${sl ? `
-        <div class="chart-marker sl" style="left:${pos(sl)}px"></div>
-        <div class="chart-label sl" style="left:${pos(sl)}px">SL ${sl}</div>
-      ` : ""}
-    `;
-  }
+        const grossProfit = (exit - entry) * positionSize;
 
-  function calcSpot() {
-    const capital = +document.getElementById("spot-capital").value || 0;
-    const entry   = +document.getElementById("spot-entry").value || 0;
-    const tp      = +document.getElementById("spot-tp").value || 0;
-    const slVal   = document.getElementById("spot-sl").value;
-    const sl      = slVal ? +slVal : null;
-    const feePct  = +document.getElementById("spot-fee").value || 0;
+        const feeRate = feePct / 100;
 
-    if (!capital || !entry || !tp) {
-      resultEl.textContent = "Fill: capital, entry, TP.";
-      return;
-    }
+        const volumeEntry = positionSize * entry;
+        const volumeExit  = positionSize * exit;
 
-    const size = capital / entry;
-    const gross = (tp - entry) * size;
+        const totalFees = (volumeEntry + volumeExit) * feeRate;
 
-    const feeRate = feePct / 100;
-    const notionalEntry = size * entry;
-    const notionalExit  = size * tp;
-    const fees = (notionalEntry + notionalExit) * feeRate;
+        const netProfit = grossProfit - totalFees;
+        const roe = (netProfit / capital) * 100;
 
-    const net = gross - fees;
-    const roe = (net / capital) * 100;
+        let riskHTML = "";
 
-    let riskBlock = "";
+        // ---- STOP LOSS CALC ----
+        if (stop && stop > 0) {
+            const lossPerCoin = entry - stop;
 
-    if (sl && sl > 0 && sl < entry) {
-      const lossPerCoin = entry - sl;
-      const grossLoss = lossPerCoin * size;
+            if (lossPerCoin > 0) {
+                const grossLoss = lossPerCoin * positionSize;
 
-      const slNotional = size * sl;
-      const feesSl = (notionalEntry + slNotional) * feeRate;
+                const volumeStop = positionSize * stop;
+                const feesSL = (volumeEntry + volumeStop) * feeRate;
 
-      const netLoss = grossLoss + feesSl;
-      const riskPct = (netLoss / capital) * 100;
-      const rr = netLoss ? net / netLoss : null;
+                const netLoss = grossLoss + feesSL;
+                const riskPct = (netLoss / capital) * 100;
+                const rr = netLoss > 0 ? netProfit / netLoss : "---";
 
-      riskBlock = `
-        <br><b>Risk to SL:</b><br>
-        Loss: -${netLoss.toFixed(2)} $<br>
-        Risk vs capital: -${riskPct.toFixed(2)} %<br>
-        R:R = ${rr ? rr.toFixed(2) : "—"}
-      `;
-    }
+                riskHTML = `
+                    <div class="result-item risk">
+                        <h4>Risk</h4>
+                        <p>Potential loss: <b>-${netLoss.toFixed(2)}$</b></p>
+                        <p>Risk %: <b>-${riskPct.toFixed(2)}%</b></p>
+                        <p>R:R = <b>${typeof rr === "number" ? rr.toFixed(2) : rr}</b></p>
+                    </div>
+                `;
+            }
+        }
 
-    resultEl.innerHTML = `
-      <b>TP result:</b><br>
-      Size: ${size.toFixed(6)}<br>
-      Gross: ${gross.toFixed(2)} $<br>
-      Fees: ${fees.toFixed(2)} $<br>
-      <b>Net: ${net.toFixed(2)} $</b><br>
-      ROE: ${roe.toFixed(2)} %
-      ${riskBlock}
-    `;
-
-    renderChart(entry, tp, sl || null);
-  }
-
-  // events
-  if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      calcSpot();
+        // ---- RENDER RESULT ----
+        resultBlock.innerHTML = `
+            <div class="result-item">
+                <p><b>Position size:</b> ${positionSize.toFixed(6)} units</p>
+                <p><b>Gross profit:</b> ${grossProfit.toFixed(2)}$</p>
+                <p><b>Total fees:</b> ${totalFees.toFixed(2)}$</p>
+                <p><b>Net profit:</b> ${netProfit.toFixed(2)}$</p>
+                <p><b>ROE:</b> ${roe.toFixed(2)}%</p>
+            </div>
+            ${riskHTML}
+        `;
     });
-  }
 
-  const btnCalc = document.getElementById("btn-calc-spot");
-  if (btnCalc) {
-    btnCalc.addEventListener("click", (e) => {
-      e.preventDefault();
-      calcSpot();
-    });
-  }
-
-  // пока fetch цены с биржи не делаем (нужен API + CORS)
-  const btnFetch = document.getElementById("btn-fetch-spot-price");
-  if (btnFetch) {
-    btnFetch.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("Online price fetch: to be implemented later.");
-    });
-  }
-
-  updateStatus();
-  window.addEventListener("online", updateStatus);
-  window.addEventListener("offline", updateStatus);
+    // === Helper: show errors ===
+    function showError(msg) {
+        resultBlock.innerHTML = `<div class="error">${msg}</div>`;
+    }
 });
