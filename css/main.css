@@ -234,3 +234,56 @@ button {
 .chart-label.sl {
   bottom: 84px;
 }
+
+.status-indicator {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.status-indicator.online {
+  background: #0fa;
+  color: #000;
+}
+
+.status-indicator.offline {
+  background: #f33;
+  color: #000;
+}
+
+/* простая линия с уровнями Entry / TP / SL */
+.chart-placeholder {
+  position: relative;
+  margin-top: 10px;
+  height: 140px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.chart-line {
+  position: absolute;
+  top: 60%;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: rgba(255,255,255,0.25);
+}
+
+.chart-marker {
+  position: absolute;
+  top: -45px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  text-align: center;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.8);
+  border: 1px solid rgba(255,255,255,0.25);
+  min-width: 52px;
+}
+
+.chart-marker.entry { border-color: #4bb8ff; }
+.chart-marker.tp    { border-color: #0fa; }
+.chart-marker.sl    { border-color: #f33; }
