@@ -88,6 +88,14 @@
 
 </main>
 <script type="module">
+  import { loadSymbols } from "./js/symbols.js";
+
+let ALL_SYMBOLS = [];
+
+(async () => {
+  ALL_SYMBOLS = await loadSymbols();
+})();
+  
   import { getPrice } from "./js/binance.js";
 
   const priceEl = document.getElementById("live-price");
