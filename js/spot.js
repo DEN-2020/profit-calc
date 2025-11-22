@@ -74,27 +74,25 @@ function formatSize(v) {
   return v.toFixed(6);
 }
 
-// ICONS CDN BASE
-const ICON_CDN = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/";
+// ===== Crypto Icon CDN 
+const ICON_CDN = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/icons/128/color/";
 
-// Обновление иконки символа
+// Подгрузка иконки символа (берём BASE-coin: BTCUSDT -> BTC)
 function updateSymbolIcon(sym) {
   const el = document.getElementById("symbol-icon");
   if (!el) return;
 
-  const s = sym.trim().toUpperCase();
-  if (!s) {
-    el.src = "img/blank.png";   // локальная заглушка
+  if (!sym) {
+    el.src = "img/blank.png";
     return;
   }
 
-  const url = `${ICON_CDN}${s}.png`;
+  const base = sym.replace("USDT", "").replace("USD", "").replace("BUSD", "").toLowerCase();
+  const url = `${ICON_CDN}${base}.png`;
 
-  // пробуем загрузить реальную иконку
   fetch(url, { method: "HEAD" })
     .then(r => {
-      if (r.ok) el.src = url;
-      else el.src = "img/blank.png"; // fallback
+      el.src = r.ok ? url : "img/blank.png";
     })
     .catch(() => el.src = "img/blank.png");
 }
