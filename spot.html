@@ -39,13 +39,12 @@
 </div>
     <form class="form" id="spot-form">
 
-      <div class="form-row">
-        <label for="symbol">Symbol</label>
-        <input id="symbol" type="text"
-       placeholder="BTC, ETH, etc"
-       autocorrect="off"
-       autocapitalize="off"
-       spellcheck="false">
+      <div class="form-row symbol-wrap">
+  <label for="symbol">Symbol</label>
+  <div class="symbol-input-box">
+    <input id="symbol" type="text" placeholder="BTC, ETH, etc">
+    <div id="symbol-autocomplete" class="autocomplete-list"></div>
+  </div>
       </div>
 
       <div class="form-row">
