@@ -73,7 +73,26 @@
 }
 
 
+.icon-input {
+  position: relative;
+}
 
+.symbol-icon-img {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.icon-input input {
+  padding-left: 38px !important;
+}
 
 /* ================================
    RESULT BLOCK (compact)
