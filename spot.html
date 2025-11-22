@@ -87,59 +87,61 @@
   </section>
 
 </main>
-<script type="module">
+
+  <script type="module">
   import { loadSymbols } from "./js/symbols.js";
-
-let ALL_SYMBOLS = [];
-
-(async () => {
-  ALL_SYMBOLS = await loadSymbols();
-})();
-
-  // ---------- AUTOCOMPLETE UI ----------
-const auto = document.createElement("div");
-auto.id = "symbol-autocomplete";
-auto.className = "autocomplete-list";
-symbolEl.parentNode.appendChild(auto);
-
-symbolEl.addEventListener("input", () => {
-  const val = symbolEl.value.trim().toUpperCase();
-  auto.innerHTML = "";
-
-  if (!val || ALL_SYMBOLS.length === 0) return;
-
-  // Получаем первые 15 совпадений
-  const matches = ALL_SYMBOLS
-    .filter(s => s.startsWith(val))
-    .slice(0, 15);
-
-  matches.forEach(m => {
-    const item = document.createElement("div");
-    item.className = "autocomplete-item";
-    item.textContent = m;
-    item.onclick = () => {
-      symbolEl.value = m;
-      auto.innerHTML = "";
-      loadPrice(); // обновить цену автоматически
-    };
-    auto.appendChild(item);
-  });
-});
-
-// Закрывать список при клике вне
-document.addEventListener("click", (e) => {
-  if (!auto.contains(e.target) && e.target !== symbolEl) {
-    auto.innerHTML = "";
-  }
-});
-  
   import { getPrice } from "./js/binance.js";
 
+  // --- DOM elements ---
   const priceEl = document.getElementById("live-price");
   const symbolEl = document.getElementById("symbol");
   const entryEl  = document.getElementById("entry");
   const updateBtn = document.getElementById("update-price-btn");
 
+  // --- Load symbols from Binance ---
+  let ALL_SYMBOLS = [];
+
+  (async () => {
+    ALL_SYMBOLS = await loadSymbols();
+  })();
+
+  // ---------- AUTOCOMPLETE UI ----------
+  const auto = document.createElement("div");
+  auto.id = "symbol-autocomplete";
+  auto.className = "autocomplete-list";
+  symbolEl.parentNode.appendChild(auto);
+
+  symbolEl.addEventListener("input", () => {
+    const val = symbolEl.value.trim().toUpperCase();
+    auto.innerHTML = "";
+
+    if (!val || ALL_SYMBOLS.length === 0) return;
+
+    const matches = ALL_SYMBOLS
+      .filter(s => s.startsWith(val))
+      .slice(0, 15);
+
+    matches.forEach(m => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-item";
+      item.textContent = m;
+      item.onclick = () => {
+        symbolEl.value = m;
+        auto.innerHTML = "";
+        loadPrice(); // обновить цену
+      };
+      auto.appendChild(item);
+    });
+  });
+
+  // Закрывать список при клике вне
+  document.addEventListener("click", (e) => {
+    if (!auto.contains(e.target) && e.target !== symbolEl) {
+      auto.innerHTML = "";
+    }
+  });
+
+  // ---------- PRICE LOADER ----------
   async function loadPrice() {
     const sym = symbolEl.value.trim();
     if (!sym) return;
@@ -148,20 +150,18 @@ document.addEventListener("click", (e) => {
     const price = await getPrice(sym);
     if (price) {
       priceEl.textContent = price.toFixed(2);
-      entryEl.value = price;  // авто-установка entry
+      entryEl.value = price;
     } else {
       priceEl.textContent = "error";
     }
   }
 
+  // Events
   updateBtn.addEventListener("click", loadPrice);
-
-  // auto-load when symbol changes
   symbolEl.addEventListener("change", loadPrice);
 
   // initial load
   setTimeout(loadPrice, 300);
 </script>
-  
 </body>
 </html>
