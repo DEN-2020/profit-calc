@@ -316,32 +316,37 @@ function drawSpotChart(entry, tp, sl) {
   }
 
   function mark(price, color, label) {
-    const px = x(price);
+  const px = x(price);
 
-    const line = document.createElementNS(svgNS, "line");
-    line.setAttribute("x1", px);
-    line.setAttribute("x2", px);
-    line.setAttribute("y1", 40);
-    line.setAttribute("y2", 75);
-    line.setAttribute("stroke", color);
-    line.setAttribute("stroke-width", "2.4");
-    svg.appendChild(line);
+  const line = document.createElementNS(svgNS, "line");
+  line.setAttribute("x1", px);
+  line.setAttribute("x2", px);
+  line.setAttribute("y1", 40);
+  line.setAttribute("y2", 75);
+  line.setAttribute("stroke", color);
+  line.setAttribute("stroke-width", "2.4");
+  svg.appendChild(line);
 
-    const dot = document.createElementNS(svgNS, "circle");
-    dot.setAttribute("cx", px);
-    dot.setAttribute("cy", "75");
-    dot.setAttribute("r", "4");
-    dot.setAttribute("fill", color);
-    svg.appendChild(dot);
+  const dot = document.createElementNS(svgNS, "circle");
+  dot.setAttribute("cx", px);
+  dot.setAttribute("cy", "75");
+  dot.setAttribute("r", "4");
+  dot.setAttribute("fill", color);
+  svg.appendChild(dot);
 
-    const text = document.createElementNS(svgNS, "text");
-    text.setAttribute("x", px);
-    text.setAttribute("y", "24");
-    text.setAttribute("fill", color);
-    text.setAttribute("font-size", "11");
-    text.setAttribute("text-anchor", "middle");
-    text.textContent = `${label} ${price}`;
-    svg.appendChild(text);
+  const text = document.createElementNS(svgNS, "text");
+  text.setAttribute("x", px);
+
+  
+  const textY = label === "Entry" ? 18 : 24;
+  text.setAttribute("y", textY);
+  
+
+  text.setAttribute("fill", color);
+  text.setAttribute("font-size", "11");
+  text.setAttribute("text-anchor", "middle");
+  text.textContent = `${label} ${price}`;
+  svg.appendChild(text);
   }
 
   mark(entry, "#4bb8ff", "Entry");
