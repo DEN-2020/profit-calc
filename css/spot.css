@@ -119,3 +119,40 @@
 #update-price-btn:hover {
   background: #ddd;
 }
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.res-item {
+  display: flex;
+  flex-direction: column;
+  background: #181820;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.res-label {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.res-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.green { color: #51ff84; }
+.red { color: #ff5e5e; }
+.orange { color: #ffb65e; }
+
+.result-risk {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
