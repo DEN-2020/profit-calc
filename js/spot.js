@@ -101,16 +101,61 @@ if (btnCalc) {
     }
 
     resultBox.innerHTML = `
-      <div class="result-grid">
-        <div><span>Symbol:</span><strong>${sym || "—"}</strong></div>
-        <div><span>Position size:</span><strong>${size.toFixed(6)} ${sym || ""}</strong></div>
-        <div><span>Gross profit:</span><strong>${profit.toFixed(2)}$</strong></div>
-        <div><span>Total fees:</span><strong>${totalFees.toFixed(2)}$</strong></div>
-        <div><span>Net profit:</span><strong>${net.toFixed(2)}$</strong></div>
-        <div><span>ROE:</span><strong>${roe.toFixed(2)}%</strong></div>
-      </div>
-      ${riskBlock}
-    `;
+<div class="result-grid">
+
+  <div class="res-item">
+    <span class="res-label">Symbol</span>
+    <span class="res-value">${sym || "—"}</span>
+  </div>
+
+  <div class="res-item">
+    <span class="res-label">Position size</span>
+    <span class="res-value">${size.toFixed(6)} ${sym || ""}</span>
+  </div>
+
+  <div class="res-item">
+    <span class="res-label">Gross profit</span>
+    <span class="res-value green">+${profit.toFixed(2)}$</span>
+  </div>
+
+  <div class="res-item">
+    <span class="res-label">Total fees</span>
+    <span class="res-value orange">-${totalFees.toFixed(2)}$</span>
+  </div>
+
+  <div class="res-item">
+    <span class="res-label">Net profit</span>
+    <span class="res-value ${net >= 0 ? "green" : "red"}">
+      ${net >= 0 ? "+" : ""}${net.toFixed(2)}$
+    </span>
+  </div>
+
+  <div class="res-item">
+    <span class="res-label">ROE</span>
+    <span class="res-value ${roe >= 0 ? "green" : "red"}">
+      ${roe.toFixed(2)}%
+    </span>
+  </div>
+
+</div>
+
+${sl ? `
+<div class="result-risk">
+  <div class="res-item">
+    <span class="res-label">SL Net Loss</span>
+    <span class="res-value red">-${netLoss.toFixed(2)}$</span>
+  </div>
+  <div class="res-item">
+    <span class="res-label">Risk %</span>
+    <span class="res-value red">-${riskPct.toFixed(2)}%</span>
+  </div>
+  <div class="res-item">
+    <span class="res-label">R:R</span>
+    <span class="res-value">${rr ? rr.toFixed(2) : "—"}</span>
+  </div>
+</div>
+` : ""}
+`;
 
     drawSpotChart(entry, tp, sl);
   });
@@ -128,71 +173,68 @@ function drawSpotChart(entry, tp, sl) {
 
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("viewBox", "0 0 320 130");
+  svg.setAttribute("viewBox", "0 0 340 90");
   svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "130");
-
-  // фон
-  const bg = document.createElementNS(svgNS, "rect");
-  bg.setAttribute("x", "0");
-  bg.setAttribute("y", "0");
-  bg.setAttribute("width", "320");
-  bg.setAttribute("height", "130");
-  bg.setAttribute("rx", "12");
-  bg.setAttribute("fill", "#101015");
-  svg.appendChild(bg);
+  svg.setAttribute("height", "90");
 
   const values = sl ? [sl, entry, tp] : [entry, tp];
   const minP = Math.min(...values);
   const maxP = Math.max(...values);
   const span = maxP - minP || 1;
 
-  function x(price) {
-    return 30 + ((price - minP) / span) * 260; // 30..290
+  const x = price => 20 + ((price - minP) / span) * 300;
+
+  const bg = document.createElementNS(svgNS, "rect");
+  bg.setAttribute("width", "340");
+  bg.setAttribute("height", "90");
+  bg.setAttribute("fill", "#101015");
+  bg.setAttribute("rx", "10");
+  svg.appendChild(bg);
+
+  // зелёная зона Entry -> TP
+  const greenZone = document.createElementNS(svgNS, "rect");
+  greenZone.setAttribute("x", x(entry));
+  greenZone.setAttribute("y", "40");
+  greenZone.setAttribute("width", x(tp) - x(entry));
+  greenZone.setAttribute("height", "20");
+  greenZone.setAttribute("fill", "#153a23");
+  svg.appendChild(greenZone);
+
+  if (sl) {
+    const redZone = document.createElementNS(svgNS, "rect");
+    redZone.setAttribute("x", x(sl));
+    redZone.setAttribute("y", "40");
+    redZone.setAttribute("width", x(entry) - x(sl));
+    redZone.setAttribute("height", "20");
+    redZone.setAttribute("fill", "#3a1515");
+    svg.appendChild(redZone);
   }
 
-  // базовая ось
-  const axis = document.createElementNS(svgNS, "line");
-  axis.setAttribute("x1", "20");
-  axis.setAttribute("x2", "300");
-  axis.setAttribute("y1", "100");
-  axis.setAttribute("y2", "100");
-  axis.setAttribute("stroke", "#333");
-  axis.setAttribute("stroke-width", "2");
-  svg.appendChild(axis);
-
-  function drawMarker(price, color, label) {
+  function mark(price, color, label) {
     const px = x(price);
 
-    const vline = document.createElementNS(svgNS, "line");
-    vline.setAttribute("x1", px);
-    vline.setAttribute("x2", px);
-    vline.setAttribute("y1", "100");
-    vline.setAttribute("y2", "40");
-    vline.setAttribute("stroke", color);
-    vline.setAttribute("stroke-width", "3");
-    svg.appendChild(vline);
-
-    const dot = document.createElementNS(svgNS, "circle");
-    dot.setAttribute("cx", px);
-    dot.setAttribute("cy", "100");
-    dot.setAttribute("r", "4");
-    dot.setAttribute("fill", color);
-    svg.appendChild(dot);
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", px);
+    line.setAttribute("x2", px);
+    line.setAttribute("y1", 30);
+    line.setAttribute("y2", 70);
+    line.setAttribute("stroke", color);
+    line.setAttribute("stroke-width", "2");
+    svg.appendChild(line);
 
     const text = document.createElementNS(svgNS, "text");
     text.setAttribute("x", px);
-    text.setAttribute("y", "30");
+    text.setAttribute("y", 25);
     text.setAttribute("fill", color);
-    text.setAttribute("font-size", "11");
+    text.setAttribute("font-size", "12");
     text.setAttribute("text-anchor", "middle");
     text.textContent = `${label} ${price}`;
     svg.appendChild(text);
   }
 
-  drawMarker(entry, "#4bb8ff", "Entry");
-  drawMarker(tp, "#51ff84", "TP");
-  if (sl) drawMarker(sl, "#ff5e5e", "SL");
+  mark(entry, "#4bb8ff", "Entry");
+  mark(tp, "#51ff84", "TP");
+  if (sl) mark(sl, "#ff5e5e", "SL");
 
   box.appendChild(svg);
 }
