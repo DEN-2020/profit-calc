@@ -123,8 +123,8 @@ if (btnCalc) {
     let slDistPct = null;
 
     if (sl && sl > 0) {
-      const slLossPrice = (entry - sl) * size;     // убыток по движению цены
-      const feeSlExit = size * sl * feeRate;       // комиссия выхода
+      const slLossPrice = (entry - sl) * size;     // убыток по движению цены (без знака ещё не меняем)
+      const feeSlExit = size * sl * feeRate;       // комиссия выхода по SL
       const netLoss = slLossPrice + feeEntry + feeSlExit;
       netLossAbs = Math.abs(netLoss);
       riskPctAbs = (netLossAbs / capital) * 100;
