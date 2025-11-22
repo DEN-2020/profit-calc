@@ -99,3 +99,23 @@
 .result-grid strong {
   color: #fff;
 }
+
+.live-price-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 15px;
+  font-size: 18px;
+}
+
+#update-price-btn {
+  padding: 4px 8px;
+  border: 1px solid #777;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#update-price-btn:hover {
+  background: #ddd;
+}
