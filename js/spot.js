@@ -49,6 +49,33 @@ loadSaved();
 
 
 // --------------------------
+// Helpers (formatting)
+// --------------------------
+function formatMoney(v) {
+  if (!Number.isFinite(v)) return "—";
+  const sign = v > 0 ? "+" : v < 0 ? "-" : "";
+  const abs = Math.abs(v);
+  const digits = abs >= 1000 ? 0 : abs >= 100 ? 1 : 2;
+  return `${sign}${abs.toFixed(digits)}$`;
+}
+
+function formatPercent(v) {
+  if (!Number.isFinite(v)) return "—";
+  const sign = v > 0 ? "+" : v < 0 ? "-" : "";
+  const abs = Math.abs(v);
+  const digits = abs >= 100 ? 1 : 2;
+  return `${sign}${abs.toFixed(digits)}%`;
+}
+
+function formatSize(v) {
+  if (!Number.isFinite(v)) return "—";
+  const abs = Math.abs(v);
+  if (abs >= 1) return v.toFixed(4);
+  return v.toFixed(6);
+}
+
+
+// --------------------------
 // Main Spot Calculator
 // --------------------------
 const btnCalc = document.getElementById("spot-calc-btn");
@@ -56,7 +83,7 @@ const resultBox = document.getElementById("spot-result");
 
 if (btnCalc) {
   btnCalc.addEventListener("click", () => {
-    const sym = (document.getElementById("symbol").value || "").trim();
+    const sym = (document.getElementById("symbol").value || "").trim().toUpperCase();
     const capital = parseFloat(document.getElementById("capital").value);
     const entry   = parseFloat(document.getElementById("entry").value);
     const tp      = parseFloat(document.getElementById("tp").value);
@@ -66,7 +93,7 @@ if (btnCalc) {
 
     if (!resultBox) return;
 
-    // простая валидация
+    // валидация
     if (!capital || !entry || !tp || capital <= 0 || entry <= 0 || tp <= 0) {
       resultBox.innerHTML =
         "<div class='error'>Fill capital, entry, TP (must be &gt; 0)</div>";
@@ -74,87 +101,153 @@ if (btnCalc) {
     }
 
     const size = capital / entry;
-    const profit = (tp - entry) * size;
 
     const feeRate = (feePct || 0) / 100;
     const feeEntry = size * entry * feeRate;
     const feeExit  = size * tp    * feeRate;
     const totalFees = feeEntry + feeExit;
 
-    const net = profit - totalFees;
+    const grossProfit = (tp - entry) * size;
+    const net = grossProfit - totalFees;
     const roe = (net / capital) * 100;
 
-    let riskBlock = "";
-    if (sl && sl > 0) {
-      const slLoss = (entry - sl) * size;          // убыток по цене
-      const feeSlExit = size * sl * feeRate;       // комиссия при выходе по SL
-      const netLoss = slLoss + feeEntry + feeSlExit;
-      const riskPct = (netLoss / capital) * 100;
-      const rr = netLoss > 0 ? net / netLoss : null;
+    // Доп. метрики
+    const tpDistPct = ((tp - entry) / entry) * 100;
+    const breakevenPrice = entry + (totalFees / size);
 
-      riskBlock = `
-        <br><b>SL Risk:</b><br>
-        Loss: -${netLoss.toFixed(2)}$<br>
-        Risk %: -${riskPct.toFixed(2)}%<br>
-        R:R = ${rr ? rr.toFixed(2) : "—"}
-      `;
+    // Risk (SL)
+    let riskHtml = "";
+    let netLossAbs = null;
+    let riskPctAbs = null;
+    let rr = null;
+    let slDistPct = null;
+
+    if (sl && sl > 0) {
+      const slLossPrice = (entry - sl) * size;     // убыток по движению цены
+      const feeSlExit = size * sl * feeRate;       // комиссия выхода
+      const netLoss = slLossPrice + feeEntry + feeSlExit;
+      netLossAbs = Math.abs(netLoss);
+      riskPctAbs = (netLossAbs / capital) * 100;
+      slDistPct = ((entry - sl) / entry) * 100;
+      rr = netLossAbs > 0 ? net / netLossAbs : null;
+
+      riskHtml = `
+<div class="result-risk">
+  <div class="res-item">
+    <div class="res-icon res-icon-risk">⚠</div>
+    <div class="res-content">
+      <span class="res-label">Max SL loss</span>
+      <span class="res-value">
+        <span class="badge badge-red">${formatMoney(-netLossAbs)}</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="res-item">
+    <div class="res-icon res-icon-risk">%</div>
+    <div class="res-content">
+      <span class="res-label">Risk / Capital</span>
+      <span class="res-value red">${formatPercent(riskPctAbs)}</span>
+    </div>
+  </div>
+
+  <div class="res-item">
+    <div class="res-icon res-icon-risk">SL</div>
+    <div class="res-content">
+      <span class="res-label">Distance to SL</span>
+      <span class="res-value red">${formatPercent(slDistPct)}</span>
+    </div>
+  </div>
+
+  <div class="res-item">
+    <div class="res-icon res-icon-extra">R</div>
+    <div class="res-content">
+      <span class="res-label">Reward : Risk</span>
+      <span class="res-value">${rr ? rr.toFixed(2) : "—"}</span>
+    </div>
+  </div>
+</div>`;
     }
 
+    // Основной блок результата
     resultBox.innerHTML = `
 <div class="result-grid">
 
   <div class="res-item">
-    <span class="res-label">Symbol</span>
-    <span class="res-value">${sym || "—"}</span>
+    <div class="res-icon res-icon-symbol">◎</div>
+    <div class="res-content">
+      <span class="res-label">Symbol</span>
+      <span class="res-value">${sym || "—"}</span>
+    </div>
   </div>
 
   <div class="res-item">
-    <span class="res-label">Position size</span>
-    <span class="res-value">${size.toFixed(6)} ${sym || ""}</span>
+    <div class="res-icon res-icon-size">∑</div>
+    <div class="res-content">
+      <span class="res-label">Position size</span>
+      <span class="res-value">
+        ${formatSize(size)} ${sym || ""}
+      </span>
+    </div>
   </div>
 
   <div class="res-item">
-    <span class="res-label">Gross profit</span>
-    <span class="res-value green">+${profit.toFixed(2)}$</span>
+    <div class="res-icon res-icon-profit">P</div>
+    <div class="res-content">
+      <span class="res-label">Net profit (after fees)</span>
+      <span class="res-value">
+        <span class="badge ${net >= 0 ? "badge-green" : "badge-red"}">
+          ${formatMoney(net)}
+        </span>
+      </span>
+    </div>
   </div>
 
   <div class="res-item">
-    <span class="res-label">Total fees</span>
-    <span class="res-value orange">-${totalFees.toFixed(2)}$</span>
+    <div class="res-icon res-icon-profit">G</div>
+    <div class="res-content">
+      <span class="res-label">Gross profit</span>
+      <span class="res-value green">${formatMoney(grossProfit)}</span>
+    </div>
   </div>
 
   <div class="res-item">
-    <span class="res-label">Net profit</span>
-    <span class="res-value ${net >= 0 ? "green" : "red"}">
-      ${net >= 0 ? "+" : ""}${net.toFixed(2)}$
-    </span>
+    <div class="res-icon res-icon-fee">F</div>
+    <div class="res-content">
+      <span class="res-label">Total fees (entry + exit)</span>
+      <span class="res-value orange">${formatMoney(totalFees)}</span>
+    </div>
   </div>
 
   <div class="res-item">
-    <span class="res-label">ROE</span>
-    <span class="res-value ${roe >= 0 ? "green" : "red"}">
-      ${roe.toFixed(2)}%
-    </span>
+    <div class="res-icon res-icon-roe">%</div>
+    <div class="res-content">
+      <span class="res-label">ROE</span>
+      <span class="res-value ${roe >= 0 ? "green" : "red"}">
+        ${formatPercent(roe)}
+      </span>
+    </div>
+  </div>
+
+  <div class="res-item">
+    <div class="res-icon res-icon-extra">TP</div>
+    <div class="res-content">
+      <span class="res-label">Distance to TP</span>
+      <span class="res-value green">${formatPercent(tpDistPct)}</span>
+    </div>
+  </div>
+
+  <div class="res-item">
+    <div class="res-icon res-icon-extra">BE</div>
+    <div class="res-content">
+      <span class="res-label">Break-even price</span>
+      <span class="res-value">${breakevenPrice.toFixed(2)}</span>
+    </div>
   </div>
 
 </div>
 
-${sl ? `
-<div class="result-risk">
-  <div class="res-item">
-    <span class="res-label">SL Net Loss</span>
-    <span class="res-value red">-${netLoss.toFixed(2)}$</span>
-  </div>
-  <div class="res-item">
-    <span class="res-label">Risk %</span>
-    <span class="res-value red">-${riskPct.toFixed(2)}%</span>
-  </div>
-  <div class="res-item">
-    <span class="res-label">R:R</span>
-    <span class="res-value">${rr ? rr.toFixed(2) : "—"}</span>
-  </div>
-</div>
-` : ""}
+${riskHtml}
 `;
 
     drawSpotChart(entry, tp, sl);
@@ -163,7 +256,7 @@ ${sl ? `
 
 
 // --------------------------
-// Simple Visual Chart (SVG)
+// Position View Chart (SVG)
 // --------------------------
 function drawSpotChart(entry, tp, sl) {
   const box = document.getElementById("spot-chart");
@@ -173,40 +266,52 @@ function drawSpotChart(entry, tp, sl) {
 
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("viewBox", "0 0 340 90");
+  svg.setAttribute("viewBox", "0 0 360 110");
   svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "90");
+  svg.setAttribute("height", "110");
 
   const values = sl ? [sl, entry, tp] : [entry, tp];
   const minP = Math.min(...values);
   const maxP = Math.max(...values);
   const span = maxP - minP || 1;
 
-  const x = price => 20 + ((price - minP) / span) * 300;
+  const x = price => 30 + ((price - minP) / span) * 300;
 
+  // фон
   const bg = document.createElementNS(svgNS, "rect");
-  bg.setAttribute("width", "340");
-  bg.setAttribute("height", "90");
-  bg.setAttribute("fill", "#101015");
-  bg.setAttribute("rx", "10");
+  bg.setAttribute("width", "360");
+  bg.setAttribute("height", "110");
+  bg.setAttribute("fill", "#050712");
+  bg.setAttribute("rx", "12");
   svg.appendChild(bg);
 
-  // зелёная зона Entry -> TP
+  // базовая линия
+  const base = document.createElementNS(svgNS, "line");
+  base.setAttribute("x1", "25");
+  base.setAttribute("x2", "335");
+  base.setAttribute("y1", "75");
+  base.setAttribute("y2", "75");
+  base.setAttribute("stroke", "#262638");
+  base.setAttribute("stroke-width", "2");
+  svg.appendChild(base);
+
+  // зелёная зона (Entry -> TP)
   const greenZone = document.createElementNS(svgNS, "rect");
-  greenZone.setAttribute("x", x(entry));
-  greenZone.setAttribute("y", "40");
-  greenZone.setAttribute("width", x(tp) - x(entry));
+  greenZone.setAttribute("x", Math.min(x(entry), x(tp)));
+  greenZone.setAttribute("y", "55");
+  greenZone.setAttribute("width", Math.abs(x(tp) - x(entry)));
   greenZone.setAttribute("height", "20");
-  greenZone.setAttribute("fill", "#153a23");
+  greenZone.setAttribute("fill", "rgba(34,197,94,0.20)");
   svg.appendChild(greenZone);
 
+  // красная зона (SL -> Entry)
   if (sl) {
     const redZone = document.createElementNS(svgNS, "rect");
-    redZone.setAttribute("x", x(sl));
-    redZone.setAttribute("y", "40");
-    redZone.setAttribute("width", x(entry) - x(sl));
+    redZone.setAttribute("x", Math.min(x(sl), x(entry)));
+    redZone.setAttribute("y", "55");
+    redZone.setAttribute("width", Math.abs(x(entry) - x(sl)));
     redZone.setAttribute("height", "20");
-    redZone.setAttribute("fill", "#3a1515");
+    redZone.setAttribute("fill", "rgba(239,68,68,0.20)");
     svg.appendChild(redZone);
   }
 
@@ -216,17 +321,24 @@ function drawSpotChart(entry, tp, sl) {
     const line = document.createElementNS(svgNS, "line");
     line.setAttribute("x1", px);
     line.setAttribute("x2", px);
-    line.setAttribute("y1", 30);
-    line.setAttribute("y2", 70);
+    line.setAttribute("y1", 40);
+    line.setAttribute("y2", 75);
     line.setAttribute("stroke", color);
-    line.setAttribute("stroke-width", "2");
+    line.setAttribute("stroke-width", "2.4");
     svg.appendChild(line);
+
+    const dot = document.createElementNS(svgNS, "circle");
+    dot.setAttribute("cx", px);
+    dot.setAttribute("cy", "75");
+    dot.setAttribute("r", "4");
+    dot.setAttribute("fill", color);
+    svg.appendChild(dot);
 
     const text = document.createElementNS(svgNS, "text");
     text.setAttribute("x", px);
-    text.setAttribute("y", 25);
+    text.setAttribute("y", "32");
     text.setAttribute("fill", color);
-    text.setAttribute("font-size", "12");
+    text.setAttribute("font-size", "11");
     text.setAttribute("text-anchor", "middle");
     text.textContent = `${label} ${price}`;
     svg.appendChild(text);
