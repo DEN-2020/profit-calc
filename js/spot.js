@@ -74,18 +74,29 @@ function formatSize(v) {
   return v.toFixed(6);
 }
 
+// ICONS CDN BASE
+const ICON_CDN = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/";
+
+// Обновление иконки символа
 function updateSymbolIcon(sym) {
-  if (!sym) {
-    document.getElementById("symbol-logo").src = "";
+  const el = document.getElementById("symbol-icon");
+  if (!el) return;
+
+  const s = sym.trim().toUpperCase();
+  if (!s) {
+    el.src = "img/blank.png";   // локальная заглушка
     return;
   }
 
-  // Берём только монету: BTCUSDT → BTC
-  const base = sym.replace(/USDT|BUSD|FDUSD|TUSD|TRY|EUR|GBP|AUD|BRL|USDC|ETH|BTC/i, "");
+  const url = `${ICON_CDN}${s}.png`;
 
-  const iconUrl = `https://cryptoicons.org/api/icon/${base.toLowerCase()}/200`;
-
-  document.getElementById("symbol-logo").src = iconUrl;
+  // пробуем загрузить реальную иконку
+  fetch(url, { method: "HEAD" })
+    .then(r => {
+      if (r.ok) el.src = url;
+      else el.src = "img/blank.png"; // fallback
+    })
+    .catch(() => el.src = "img/blank.png");
 }
 
 
