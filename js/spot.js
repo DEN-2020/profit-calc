@@ -74,10 +74,12 @@ function formatSize(v) {
   return v.toFixed(6);
 }
 
-// ===== Crypto Icon CDN 
+
+// ==============================
+// ICONS
+// ==============================
 const ICON_CDN = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/icons/128/color/";
 
-// Подгрузка иконки символа (берём BASE-coin: BTCUSDT -> BTC)
 function updateSymbolIcon(sym) {
   const el = document.getElementById("symbol-icon");
   if (!el) return;
@@ -87,15 +89,79 @@ function updateSymbolIcon(sym) {
     return;
   }
 
-  const base = sym.replace("USDT", "").replace("USD", "").replace("BUSD", "").toLowerCase();
+  const base = sym.replace(/USDT|USD|BUSD/i, "").toLowerCase();
   const url = `${ICON_CDN}${base}.png`;
 
   fetch(url, { method: "HEAD" })
-    .then(r => {
-      el.src = r.ok ? url : "img/blank.png";
+    .then(res => {
+      el.src = res.ok ? url : "img/blank.png";
     })
-    .catch(() => el.src = "img/blank.png");
+    .catch(() => {
+      el.src = "img/blank.png";
+    });
 }
+
+
+// ==============================
+// Autocomplete + Price Loader
+// ==============================
+let ALL_SYMBOLS = [];
+
+import { loadSymbols } from "./symbols.js";
+import { getPrice } from "./binance.js";
+
+(async () => {
+  ALL_SYMBOLS = await loadSymbols();
+})();
+
+const symbolEl = document.getElementById("symbol");
+const auto = document.getElementById("symbol-autocomplete");
+const entryEl = document.getElementById("entry");
+const priceEl = document.getElementById("live-price");
+
+symbolEl.addEventListener("input", () => {
+  const val = symbolEl.value.trim().toUpperCase();
+  updateSymbolIcon(val);
+
+  auto.innerHTML = "";
+  if (!val) return;
+
+  const matches = ALL_SYMBOLS.filter(s => s.startsWith(val)).slice(0, 15);
+
+  matches.forEach(m => {
+    const item = document.createElement("div");
+    item.className = "autocomplete-item";
+    item.textContent = m;
+
+    item.onclick = () => {
+      symbolEl.value = m;
+      updateSymbolIcon(m);
+      auto.innerHTML = "";
+      loadPrice();
+    };
+
+    auto.appendChild(item);
+  });
+});
+
+async function loadPrice() {
+  const sym = symbolEl.value.trim().toUpperCase();
+  if (!sym) return;
+
+  updateSymbolIcon(sym);
+
+  priceEl.textContent = "…";
+  const price = await getPrice(sym);
+
+  if (price) {
+    priceEl.textContent = price.toFixed(2);
+    entryEl.value = price;
+  } else {
+    priceEl.textContent = "error";
+  }
+}
+
+document.getElementById("update-price-btn").addEventListener("click", loadPrice);
 
 
 // --------------------------
