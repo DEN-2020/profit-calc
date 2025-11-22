@@ -74,6 +74,20 @@ function formatSize(v) {
   return v.toFixed(6);
 }
 
+function updateSymbolIcon(sym) {
+  if (!sym) {
+    document.getElementById("symbol-logo").src = "";
+    return;
+  }
+
+  // Берём только монету: BTCUSDT → BTC
+  const base = sym.replace(/USDT|BUSD|FDUSD|TUSD|TRY|EUR|GBP|AUD|BRL|USDC|ETH|BTC/i, "");
+
+  const iconUrl = `https://cryptoicons.org/api/icon/${base.toLowerCase()}/200`;
+
+  document.getElementById("symbol-logo").src = iconUrl;
+}
+
 
 // --------------------------
 // Main Spot Calculator
