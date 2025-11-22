@@ -54,15 +54,14 @@
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
   background: #11131a;
   border: 1px solid #252735;
   border-radius: 6px;
+  width: 100%;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 50;
+  z-index: 99;
 }
-
 
 .autocomplete-item {
   padding: 8px 12px;
@@ -167,18 +166,40 @@ svg text {
 /* ================================
    FORM FIXES
    ================================ */
+/* FORM GRID */
+.form-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+/* Consistent input styling */
 .form-row input {
+  width: 100%;
+  padding: 10px 12px;
   background: #101118;
   border: 1px solid #242632;
-  color: #eee;
   border-radius: 8px;
-  padding: 10px 12px;
+  color: #eee;
 }
 
 .form-row input:focus {
   outline: none;
   border-color: #4bb8ff;
 }
+
+.input-wrap {
+  position: relative;
+  width: 100%;
+}
+
 
 .form-actions button {
   margin-top: 8px;
