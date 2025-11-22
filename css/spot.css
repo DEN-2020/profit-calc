@@ -41,17 +41,28 @@
 /* ================================
    AUTOCOMPLETE
    ================================ */
+.symbol-wrap {
+  position: relative;
+}
+
+.symbol-input-box {
+  position: relative;
+  width: 100%;
+}
+
 .autocomplete-list {
   position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
   background: #11131a;
   border: 1px solid #252735;
   border-radius: 6px;
-  width: calc(100% - 2px);
   max-height: 200px;
   overflow-y: auto;
-  margin-top: 4px;
   z-index: 50;
 }
+
 
 .autocomplete-item {
   padding: 8px 12px;
@@ -61,6 +72,8 @@
 .autocomplete-item:hover {
   background: #1a1c26;
 }
+
+
 
 
 /* ================================
