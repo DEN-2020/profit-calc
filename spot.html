@@ -114,6 +114,7 @@
 
   symbolEl.addEventListener("input", () => {
     const val = symbolEl.value.trim().toUpperCase();
+    updateSymbolIcon(val);
     auto.innerHTML = "";
 
     if (!val || ALL_SYMBOLS.length === 0) return;
@@ -123,10 +124,11 @@
       item.className = "autocomplete-item";
       item.textContent = m;
       item.onclick = () => {
-        symbolEl.value = m;
-        auto.innerHTML = "";
-        loadPrice();
-      };
+    symbolEl.value = m;
+    updateSymbolIcon(m);   
+    auto.innerHTML = "";
+    loadPrice();
+};
       auto.appendChild(item);
     });
   });
@@ -138,6 +140,7 @@
     priceEl.textContent = "…";
     const price = await getPrice(sym);
     if (price) {
+      updateSymbolIcon(val)
       priceEl.textContent = price.toFixed(2);
       entryEl.value = price;
     } else {
