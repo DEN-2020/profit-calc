@@ -109,10 +109,7 @@
   })();
 
   // ---------- AUTOCOMPLETE UI ----------
-  const auto = document.createElement("div");
-  auto.id = "symbol-autocomplete";
-  auto.className = "autocomplete-list";
-  symbolEl.parentNode.appendChild(auto);
+const auto = document.getElementById("symbol-autocomplete");
 
   symbolEl.addEventListener("input", () => {
     const val = symbolEl.value.trim().toUpperCase();
