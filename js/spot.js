@@ -336,7 +336,7 @@ function drawSpotChart(entry, tp, sl) {
 
     const text = document.createElementNS(svgNS, "text");
     text.setAttribute("x", px);
-    text.setAttribute("y", "32");
+    text.setAttribute("y", "24");
     text.setAttribute("fill", color);
     text.setAttribute("font-size", "11");
     text.setAttribute("text-anchor", "middle");
