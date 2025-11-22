@@ -32,7 +32,11 @@
 
   <section class="card">
     <h1>Spot Trading</h1>
-
+<div class="live-price-box">
+  <label>Live Price:</label>
+  <span id="live-price">---</span>
+  <button id="update-price-btn" type="button">⟳</button>
+</div>
     <form class="form" id="spot-form">
 
       <div class="form-row">
@@ -83,5 +87,36 @@
   </section>
 
 </main>
+<script type="module">
+  import { getPrice } from "./js/binance.js";
+
+  const priceEl = document.getElementById("live-price");
+  const symbolEl = document.getElementById("symbol");
+  const entryEl  = document.getElementById("entry");
+  const updateBtn = document.getElementById("update-price-btn");
+
+  async function loadPrice() {
+    const sym = symbolEl.value.trim();
+    if (!sym) return;
+
+    priceEl.textContent = "…";
+    const price = await getPrice(sym);
+    if (price) {
+      priceEl.textContent = price.toFixed(2);
+      entryEl.value = price;  // авто-установка entry
+    } else {
+      priceEl.textContent = "error";
+    }
+  }
+
+  updateBtn.addEventListener("click", loadPrice);
+
+  // auto-load when symbol changes
+  symbolEl.addEventListener("change", loadPrice);
+
+  // initial load
+  setTimeout(loadPrice, 300);
+</script>
+  
 </body>
 </html>
