@@ -156,3 +156,98 @@
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
 }
+/* --- Result block --- */
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.res-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #181820;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #252530;
+}
+
+.res-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  background: #202030;
+  color: #a5b4fc;
+}
+
+.res-icon-symbol   { background: rgba(59,130,246,0.18); color: #93c5fd; }
+.res-icon-size     { background: rgba(99,102,241,0.18); color: #a5b4fc; }
+.res-icon-profit   { background: rgba(34,197,94,0.18);  color: #4ade80; }
+.res-icon-fee      { background: rgba(249,115,22,0.18); color: #fdba74; }
+.res-icon-roe      { background: rgba(56,189,248,0.18); color: #7dd3fc; }
+.res-icon-risk     { background: rgba(248,113,113,0.18);color: #fca5a5; }
+.res-icon-extra    { background: rgba(148,163,184,0.18);color: #e5e7eb; }
+
+.res-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.res-label {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.res-value {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.green  { color: #51ff84; }
+.red    { color: #ff5e5e; }
+.orange { color: #ffb65e; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+.badge-green {
+  background: rgba(34,197,94,0.12);
+  border-color: rgba(34,197,94,0.4);
+  color: #4ade80;
+}
+
+.badge-red {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.4);
+  color: #f87171;
+}
+
+.badge-neutral {
+  background: rgba(148,163,184,0.12);
+  border-color: rgba(148,163,184,0.4);
+  color: #e5e7eb;
+}
+
+.result-risk {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed #333;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
