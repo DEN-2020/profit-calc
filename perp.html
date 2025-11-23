@@ -40,17 +40,15 @@
   </div>
 
   <form id="perp-form" class="form">
+<div class="form-row">
+  <label for="symbol">Symbol</label>
 
-    <!-- SYMBOL with icon + autocomplete -->
-    <div class="form-row">
-      <label for="perp_symbol">Symbol</label>
-
-      <div class="input-wrap icon-input">
-        <img id="perp_symbol_icon" class="symbol-icon-img" src="img/blank.png" alt="">
-        <input id="perp_symbol" type="text" placeholder="e.g. ETHUSDT" autocomplete="off">
-        <div id="perp_autocomplete" class="autocomplete-list"></div>
-      </div>
-    </div>
+  <div class="input-wrap icon-input">
+    <img id="symbol-icon" class="symbol-icon-img" src="img/blank.png" alt="">
+    <input id="symbol" type="text" placeholder="ETHUSDT" autocomplete="off">
+    <div id="symbol-autocomplete" class="autocomplete-list"></div>
+  </div>
+</div>
 
     <div class="form-row">
       <label for="perp_margin">Margin ($)</label>
