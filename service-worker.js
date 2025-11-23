@@ -1,50 +1,54 @@
-const CACHE = "profitcalc-v1";
+const CACHE = "profitcalc-v3";
 
-// файлы, которые будут доступны оффлайн
-const OFFLINE_URLS = [
-  "/profit-calc/",
-  "/profit-calc/index.html",
-  "/profit-calc/css/main.css",
-  "/profit-calc/css/spot.css",
-  "/profit-calc/js/spot.js",
-  "/profit-calc/js/perp.js",
-  "/profit-calc/js/strategy.js",
-  "/profit-calc/js/binance.js",
-  "/profit-calc/js/symbols.js",
-  "/profit-calc/js/offline.js",
-  "/profit-calc/img/blank.png",
+// список для OFFLINE
+const FILES = [
+  "./",
+  "./index.html",
+  "./spot.html",
+  "./perp.html",
+  "./strategy.html",
+
+  "./css/main.css",
+  "./css/spot.css",
+  "./css/perp.css",
+  "./css/strategy.css",
+
+  "./js/spot.js",
+  "./js/perp.js",
+  "./js/binance.js",
+  "./js/symbols.js",
+
+  "./img/blank.png"
 ];
 
-self.addEventListener("install", (event) => {
+// установка SW
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(OFFLINE_URLS))
+    caches.open(CACHE).then(cache => cache.addAll(FILES))
   );
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+// активация SW
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
+    caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter((key) => key !== CACHE)
-          .map((key) => caches.delete(key))
+        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       )
     )
   );
   self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
+// обработка запросов
+self.addEventListener("fetch", event => {
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        // обновляем кеш
-        const clone = response.clone();
-        caches.open(CACHE).then((cache) => {
-          cache.put(event.request, clone);
-        });
-        return response;
+      .then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE).then(cache => cache.put(event.request, clone));
+        return resp;
       })
       .catch(() => caches.match(event.request))
   );
