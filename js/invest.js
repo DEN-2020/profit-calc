@@ -19,78 +19,59 @@ function calcInvest() {
   const reinvType = G("inv_reinvest_type").value;
   const reinvVal = num("inv_reinvest_value");
 
-  // APR balance
-  let apr = start;
+ let apr = start;
+let apy = start;
 
-  // APY balance
-  let apy = start;
+let aprBase = start; // APR всегда считает от начального депозита
 
-  const logs = [];
+for (let m = 1; m <= months; m++) {
 
-  const dailyRate = pctMonth / 30;
+    // --- APR (simple) ---
+    apr = aprBase + aprBase * pctMonth * m;
 
-  for (let m = 1; m <= months; m++) {
 
-    // -------------------------
-    // 1) APR (simple)
-    // -------------------------
-    const prApr = start * pctMonth;
-    apr += prApr;
-
-    // -------------------------
-    // 2) APY (compound correctly)
-    // -------------------------
+    // --- APY (compound) ---
     if (capFreq === 0) {
-      // NO COMPOUNDING (pure interest payout)
-      // profit hands out, balance grows only via reinvest
-      // (apy stays constant unless reinvest adds funds)
-      // do nothing here
+        // no compounding — тело НЕ растёт
+        // apy не меняем тут
     }
 
     else if (capFreq === 1) {
-      // DAILY APY
-      for (let d = 0; d < 30; d++) {
-        apy *= (1 + dailyRate);
-      }
+        // daily compounding (30 days)
+        for (let d = 0; d < 30; d++) {
+            apy *= (1 + dailyRate);
+        }
     }
 
     else if (capFreq === 30) {
-      // MONTHLY APY
-      apy += apy * pctMonth;
+        // monthly compounding
+        apy *= (1 + pctMonth);
     }
 
     else {
-      // period APY — compound only AT that period
-      if ((m * 30) % capFreq === 0) {
-        apy += apy * pctMonth;
-      }
+        // period compounding 90/180/365
+        if ((m * 30) % capFreq === 0) {
+            apy *= (1 + pctMonth);
+        }
     }
 
-    // -------------------------
-    // 3) Reinvesment
-    // -------------------------
+    // --- REINVEST — только увеличивает тело ---
     if (reinvPeriod > 0 && m % reinvPeriod === 0) {
-      let profitPeriod = start * pctMonth * reinvPeriod; // income for APR logic (fixed deposit)
-      let profitReal = apy * pctMonth * reinvPeriod;     // real profit based on compound balance
+        let monthlyProfit = apy * pctMonth * reinvPeriod;
 
-      if (reinvType === "profit_full") {
-        apy += profitReal;
+        if (reinvType === "profit_full") {
+            apy += monthlyProfit;
 
-      } else if (reinvType === "profit_percent") {
-        apy += profitReal * (reinvVal / 100);
+        } else if (reinvType === "profit_percent") {
+            apy += monthlyProfit * (reinvVal / 100);
 
-      } else if (reinvType === "fixed_amount") {
-        apy += reinvVal;
-
-      }
+        } else if (reinvType === "fixed_amount") {
+            apy += reinvVal;
+        }
     }
 
-    logs.push({
-      m,
-      apr,
-      apy
-    });
-  }
+    logs.push({ m, apr, apy });
+}
 
   const roiApr = ((apr - start) / start) * 100;
   const roiApy = ((apy - start) / start) * 100;
