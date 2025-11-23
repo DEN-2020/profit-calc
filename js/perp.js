@@ -179,6 +179,15 @@ if (sl) {
     const net = grossProfit - totalFees;
     const roe = (net / margin) * 100;
 
+    // --- Liquidation (isolated, mmr = 0.5%) ---
+const mmr = 0.005; 
+let liq;
+
+if (side === "long") {
+    liq = entry * (1 - mmr * lev);
+} else {
+    liq = entry * (1 + mmr * lev);
+}
     // SL
     let slBlock = "";
 
@@ -202,7 +211,7 @@ if (sl) {
                     <span class="res-label">R:R = ${rr ? rr.toFixed(2) : "—"}</span>
                   </div>
                 </div>
-            `;
+                   `;
         }
     }
 
@@ -259,6 +268,13 @@ if (sl) {
             </span>
           </div>
         </div>
+        <div class="res-item">
+  <div class="res-icon">L</div>
+  <div class="res-content">
+    <span class="res-label">Liquidation</span>
+    <span class="res-value red">${liq.toFixed(2)}</span>
+  </div>
+</div>
 
         ${slBlock}
       </div>
