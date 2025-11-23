@@ -12,7 +12,7 @@ G("inv-calc-btn").addEventListener("click", calcInvest);
 // =======================
 function calcInvest() {
   const start = num("inv_amount");
-  const pctMonth = num("inv_pct") / 100;      // monthly %
+  const pctMonth = num("inv_pct") / 100;
   const months = num("inv_months");
 
   const reinvEvery = parseInt(G("inv_reinvest_period").value); // 0/1/3/6/12
@@ -24,26 +24,46 @@ function calcInvest() {
   let aprBal = start;
   let apyBal = start;
 
+  // Totals for summary
+  let totalProfitAPR = 0;
+  let totalProfitAPY = 0;
+
+  let totalAdded = 0;
+  let totalReinvest = 0;
+  let totalWithdrawn = 0;
+
   const logs = [];
 
   for (let m = 1; m <= months; m++) {
 
-    // ===== APR (simple % each month) =====
-    aprBal += aprBal * pctMonth;
+    // ===== APR (simple) =====
+    const profitAPR = aprBal * pctMonth;
+    aprBal += profitAPR;
+    totalProfitAPR += profitAPR;
+
     aprBal += addMonthly;
     aprBal -= withdrawMonthly;
 
+    totalAdded += addMonthly;
+    totalWithdrawn += withdrawMonthly;
+
     if (reinvEvery > 0 && m % reinvEvery === 0) {
-      aprBal += reinvValue;  // external top-up
+      aprBal += reinvValue;
+      totalReinvest += reinvValue;
     }
 
     // ===== APY (monthly compounding) =====
+    const before = apyBal;
     apyBal *= (1 + pctMonth);
+
+    const profitAPY = apyBal - before;
+    totalProfitAPY += profitAPY;
+
     apyBal += addMonthly;
     apyBal -= withdrawMonthly;
 
     if (reinvEvery > 0 && m % reinvEvery === 0) {
-      apyBal += reinvValue; // external top-up
+      apyBal += reinvValue;
     }
 
     logs.push({
@@ -56,7 +76,22 @@ function calcInvest() {
   const roiAPR = ((aprBal - start) / start) * 100;
   const roiAPY = ((apyBal - start) / start) * 100;
 
-  renderResult(start, aprBal, apyBal, roiAPR, roiAPY, logs);
+  renderResult(
+    start,
+    aprBal,
+    apyBal,
+    roiAPR,
+    roiAPY,
+    logs,
+    {
+      totalProfitAPR,
+      totalProfitAPY,
+      totalAdded,
+      totalReinvest,
+      totalWithdrawn
+    }
+  );
+
   drawChart(logs);
 }
 
@@ -64,7 +99,15 @@ function calcInvest() {
 // =======================
 // RESULT OUTPUT
 // =======================
-function renderResult(start, aprFinal, apyFinal, roiAPR, roiAPY, logs) {
+function renderResult(start, aprFinal, apyFinal, roiAPR, roiAPY, logs, extra) {
+  const {
+    totalProfitAPR,
+    totalProfitAPY,
+    totalAdded,
+    totalReinvest,
+    totalWithdrawn
+  } = extra;
+
   G("inv-result").innerHTML = `
     <div class="result-grid">
 
@@ -108,9 +151,60 @@ function renderResult(start, aprFinal, apyFinal, roiAPR, roiAPY, logs) {
         </div>
       </div>
 
+      <div class="res-item">
+        <div class="res-icon">💰</div>
+        <div class="res-content">
+          <span class="res-label">Monthly profit (APY)</span>
+          <span class="res-value green">${(totalProfitAPY / logs.length).toFixed(2)}$</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">📈</div>
+        <div class="res-content">
+          <span class="res-label">Total profit (APY)</span>
+          <span class="res-value green">${totalProfitAPY.toFixed(2)}$</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">➕</div>
+        <div class="res-content">
+          <span class="res-label">Reinvest added</span>
+          <span class="res-value">${totalReinvest.toFixed(2)}$</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">➕</div>
+        <div class="res-content">
+          <span class="res-label">Monthly deposits</span>
+          <span class="res-value">${totalAdded.toFixed(2)}$</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">➖</div>
+        <div class="res-content">
+          <span class="res-label">Withdrawn</span>
+          <span class="res-value red">${totalWithdrawn.toFixed(2)}$</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">✔</div>
+        <div class="res-content">
+          <span class="res-label">Net profit (APY)</span>
+          <span class="res-value green">
+            ${(apyFinal - start - totalAdded - totalReinvest + totalWithdrawn).toFixed(2)}$
+          </span>
+        </div>
+      </div>
+
     </div>
   `;
 }
+
 
 
 // =======================
@@ -138,9 +232,7 @@ function drawChart(logs) {
 
   let d = "";
   logs.forEach((row, i) => {
-    const px = x(i);
-    const py = y(row.apy);
-    d += (i === 0 ? "M" : "L") + px + " " + py + " ";
+    d += (i === 0 ? "M" : "L") + x(i) + " " + y(row.apy) + " ";
   });
 
   const path = document.createElementNS(svgNS, "path");
