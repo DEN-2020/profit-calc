@@ -33,44 +33,46 @@
   <section class="card">
     <h1>Strategy Risk & Edge</h1>
     <p class="card-subtitle">
-      Оцени матожидание, риск вылета и «здоровье» стратегии до реальных сделок.
+      Evaluate long-term expectancy, risk of ruin and strategy robustness 
+      before risking real money.
     </p>
 
     <form id="strategy-form" class="form">
 
       <div class="form-row">
-        <label for="start_capital">Start capital ($)</label>
+        <label for="start_capital">💰 Start capital ($)</label>
         <input id="start_capital" type="number" value="1000" step="10">
       </div>
 
       <div class="form-row">
-        <label for="winrate">Winrate (%)</label>
+        <label for="winrate">🎯 Winrate (%)</label>
         <input id="winrate" type="number" value="45" step="0.1">
       </div>
 
       <div class="form-row">
-        <label for="rr">Reward : Risk (R:R)</label>
+        <label for="rr">📈 Reward : Risk (R:R)</label>
         <input id="rr" type="number" value="2.5" step="0.1">
       </div>
 
       <div class="form-row">
-        <label for="risk_pct">Risk per trade (%)</label>
+        <label for="risk_pct">⚠ Risk per trade (%)</label>
         <input id="risk_pct" type="number" value="2" step="0.1">
       </div>
 
       <div class="form-row">
-        <label for="trades">Trades count</label>
+        <label for="trades">🔁 Trades count</label>
         <input id="trades" type="number" value="100" step="1">
       </div>
 
       <div class="form-row">
-        <label for="fee_pct">Fee per round-trip (%)</label>
+        <label for="fee_pct">💸 Fee per round-trip (%)</label>
         <input id="fee_pct" type="number" value="0.2" step="0.01">
       </div>
 
       <div class="form-actions">
         <button type="button" id="strategy-calc-btn">Analyze strategy</button>
       </div>
+
     </form>
   </section>
 
