@@ -56,7 +56,7 @@ body::before {
 }
 
 .logo {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--accent);
 }
@@ -69,7 +69,7 @@ body::before {
   display: flex;
   flex-wrap: wrap; 
   flex-grow:1;
-  gap: 12px;            
+  gap: 10px;            
   justify-content: center;   
   align-items: center;
 }
@@ -77,7 +77,7 @@ body::before {
 .nav a {
   text-decoration: none;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 12px;
   padding: 4px 6px;
 }
 
@@ -102,6 +102,25 @@ body::before {
   color: #ff4f4f;
 }
 
+
+.status-light {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 6px;
+  border: 2px solid #222;
+  box-shadow: 0 0 4px #000;
+}
+
+.status-light.online {
+  background: #00ff9c;
+  box-shadow: 0 0 6px #00ff9c;
+}
+
+.status-light.offline {
+  background: #ff4f4f;
+  box-shadow: 0 0 6px #ff4f4f;
+}
 /* ===========================
    MAIN LAYOUT / CARDS
 =========================== */
