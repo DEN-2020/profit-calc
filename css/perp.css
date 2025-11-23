@@ -1,71 +1,32 @@
 /* =========================================
    PERP-SPECIFIC UI STYLES
-   Работает поверх main.css,
-   без зависимости от spot.css
+   Работает поверх main.css
 ========================================= */
 
-/* ---- ROW LAYOUT ---- */
-.form-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  gap: 10px;
-}
+/* -----------------------------------------
+   ICON + AUTOCOMPLETE (для поля Symbol)
+------------------------------------------*/
 
-.form-row label {
-  flex: 1;
-  font-size: 14px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.form-row input,
-.form-row select {
-  flex: 1.2;
-  padding: 9px;
-  font-size: 15px;
-  background: var(--input-bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.form-row input:focus,
-.form-row select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-/* ---- BUTTONS ---- */
-.form-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.form-actions button {
-  flex: 1;
-}
-
-/* ICON + AUTOCOMPLETE (для symbol) */
 .input-wrap {
   position: relative;
-  flex: 1.2;
-  min-width: 0;
+  width: 100%;
   box-sizing: border-box;
 }
 
+/* обёртка с иконкой и инпутом в одной линии */
 .icon-input {
   display: flex;
   width: 100%;
 }
 
+/* сам инпут: как на Spot — отступ под кружок */
 .icon-input input {
   width: 100%;
   box-sizing: border-box;
+  padding-left: 42px;   /* важно: чтобы текст не налезал на иконку */
 }
 
+/* кружок-иконка монеты */
 .symbol-icon-img {
   width: 22px;
   height: 22px;
@@ -76,7 +37,10 @@
   transform: translateY(-50%);
 }
 
-/* ---- AUTOCOMPLETE LIST ---- */
+/* -----------------------------------------
+   AUTOCOMPLETE LIST
+------------------------------------------*/
+
 .autocomplete-list {
   position: absolute;
   top: 100%;
@@ -99,12 +63,12 @@
 }
 
 .autocomplete-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.06);
 }
 
-/* =========================================
-   LIVE PRICE BOX
-========================================= */
+/* -----------------------------------------
+   LIVE PRICE BOX (верхний блок с ценой)
+------------------------------------------*/
 
 .live-price-box {
   display: flex;
@@ -141,9 +105,9 @@
   background: #333;
 }
 
-/* =========================================
-   RESULT GRID (как на spot)
-========================================= */
+/* -----------------------------------------
+   RESULT GRID (так же, как на Spot)
+------------------------------------------*/
 
 .result-block {
   padding: 10px;
@@ -198,15 +162,14 @@
   font-weight: 600;
 }
 
-/* Colors */
-.green { color: #51ff84; }
-.red   { color: #ff5e5e; }
-.orange{ color: #ffb65e; }
+/* цвета значений */
+.green  { color: #51ff84; }
+.red    { color: #ff5e5e; }
+.orange { color: #ffb65e; }
 
-/* =========================================
-   CHART PLACEHOLDER
-   (дублируем, если main.css его не тянет)
-========================================= */
+/* -----------------------------------------
+   CHART PLACEHOLDER (если main.css вдруг не подхватит)
+------------------------------------------*/
 
 .chart-placeholder {
   width: 100%;
@@ -220,7 +183,7 @@
   font-size: 14px;
 }
 
-/* Немного ужимаем на мобильных */
+/* Мелкая подстройка под мобильники */
 @media (max-width: 480px) {
   .res-item {
     padding: 8px 10px;
