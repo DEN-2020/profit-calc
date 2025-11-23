@@ -5,10 +5,14 @@
   <title>Perpetual Futures Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- global style -->
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/perp.css"> <!-- используется для автокомплита и иконок -->
 
-  <script src="js/perp.js" defer></script>
+  <!-- styles for perp page (autocomplete + icon + layout) -->
+  <link rel="stylesheet" href="css/perp.css">
+
+  <!-- logic -->
+  <script type="module" src="js/perp.js" defer></script>
 </head>
 
 <body>
@@ -29,84 +33,87 @@
 
 <main class="app-main">
 
-<section class="card">
-  <h1>Perpetual Futures</h1>
+  <!-- MAIN CALCULATOR -->
+  <section class="card">
+    <h1>Perpetual Futures</h1>
 
-  <!-- LIVE PRICE -->
-  <div class="live-price-box">
-    <label>Live Price:</label>
-    <span id="perp_live_price">---</span>
-    <button id="btn-fetch-price" type="button">⟳</button>
-  </div>
-
-  <form id="perp-form" class="form">
-<div class="form-row">
-  <label for="symbol">Symbol</label>
-
-  <div class="input-wrap icon-input">
-    <img id="symbol-icon" class="symbol-icon-img" src="img/blank.png" alt="">
-    <input id="symbol" type="text" placeholder="ETHUSDT" autocomplete="off">
-    <div id="symbol-autocomplete" class="autocomplete-list"></div>
-  </div>
-</div>
-
-    <div class="form-row">
-      <label for="perp_margin">Margin ($)</label>
-      <input id="perp_margin" type="number" step="0.01" value="50">
+    <!-- LIVE PRICE -->
+    <div class="live-price-box">
+      <label>Live Price:</label>
+      <span id="perp_live_price">---</span>
+      <button id="btn-fetch-price" type="button">⟳</button>
     </div>
 
-    <div class="form-row">
-      <label for="perp_entry">Entry price</label>
-      <input id="perp_entry" type="number" step="0.01" value="1800">
-    </div>
+    <form id="perp-form" class="form">
 
-    <div class="form-row">
-      <label for="perp_tp">Take profit</label>
-      <input id="perp_tp" type="number" step="0.01" value="3000">
-    </div>
+      <!-- SYMBOL + AUTOCOMPLETE + ICON -->
+      <div class="form-row">
+        <label for="symbol">Symbol</label>
 
-    <div class="form-row">
-      <label for="perp_sl">Stop loss</label>
-      <input id="perp_sl" type="number" step="0.01" placeholder="Optional">
-    </div>
+        <div class="input-wrap icon-input">
+          <img id="symbol-icon" class="symbol-icon-img" src="img/blank.png" alt="">
+          <input id="symbol" type="text" placeholder="ETHUSDT" autocomplete="off">
+          <div id="symbol-autocomplete" class="autocomplete-list"></div>
+        </div>
+      </div>
 
-    <div class="form-row">
-      <label for="perp_leverage">Leverage</label>
-      <input id="perp_leverage" type="number" step="1" min="1" value="10">
-    </div>
+      <div class="form-row">
+        <label for="perp_margin">Margin ($)</label>
+        <input id="perp_margin" type="number" value="50" step="0.01">
+      </div>
 
-    <div class="form-row">
-      <label for="perp_side">Side</label>
-      <select id="perp_side">
-        <option value="long">Long</option>
-        <option value="short">Short</option>
-      </select>
-    </div>
+      <div class="form-row">
+        <label for="perp_entry">Entry price</label>
+        <input id="perp_entry" type="number" value="1800" step="0.01">
+      </div>
 
-    <div class="form-row">
-      <label for="perp_fee">Fee % (per side)</label>
-      <input id="perp_fee" type="number" step="0.01" value="0.1">
-    </div>
+      <div class="form-row">
+        <label for="perp_tp">Take profit</label>
+        <input id="perp_tp" type="number" value="3000" step="0.01">
+      </div>
 
-    <div class="form-actions">
-      <button type="button" id="btn-calc-perp">Calculate</button>
-    </div>
-  </form>
-</section>
+      <div class="form-row">
+        <label for="perp_sl">Stop loss</label>
+        <input id="perp_sl" type="number" placeholder="Optional" step="0.01">
+      </div>
+
+      <div class="form-row">
+        <label for="perp_leverage">Leverage</label>
+        <input id="perp_leverage" type="number" value="10" min="1" step="1">
+      </div>
+
+      <div class="form-row">
+        <label for="perp_side">Side</label>
+        <select id="perp_side">
+          <option value="long">Long</option>
+          <option value="short">Short</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="perp_fee">Fee % (per side)</label>
+        <input id="perp_fee" type="number" value="0.1" step="0.01">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="btn-calc-perp">Calculate</button>
+      </div>
+
+    </form>
+  </section>
 
 
-<section class="card card--compact">
-  <h2>Result</h2>
-  <div id="perp-result" class="result-block"></div>
-</section>
+  <!-- RESULT BLOCK -->
+  <section class="card card--compact">
+    <h2>Result</h2>
+    <div id="perp-result" class="result-block"></div>
+  </section>
 
-
-<section class="card">
-  <h2>Position View</h2>
-  <div id="perp-chart" class="chart-placeholder">
-    <!-- (добавим позже как в spot) -->
-  </div>
-</section>
+  <!-- SVG POSITION CHART -->
+  <section class="card">
+    <h2>Position View</h2>
+    <div id="perp-chart" class="chart-placeholder"></div>
+  </section>
 
 </main>
 
