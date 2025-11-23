@@ -52,13 +52,16 @@
    ICON + AUTOCOMPLETE (для symbol)
 ========================================= */
 
-.input-wrap {
+..input-wrap {
   position: relative;
-  width: 100%;
+  flex: 1.2;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .icon-input input {
-  padding-left: 42px; /* место под иконку слева */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .symbol-icon-img {
