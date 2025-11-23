@@ -1,4 +1,23 @@
+/* ===========================
+   FIX FOR INVEST PAGE
+   override main.css form-row
+=========================== */
 
+.inv-grid .form-row {
+  display: block !important;      /* вместо flex */
+}
+
+.inv-grid .form-row label {
+  margin-bottom: 6px;
+  display: block;
+}
+
+.inv-grid .form-row input,
+.inv-grid .form-row select {
+  width: 100%;
+  flex: none !important;
+  box-sizing: border-box;
+}
 .inv-table {
   margin-top: 14px;
   border: 1px solid var(--border);
