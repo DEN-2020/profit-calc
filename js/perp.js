@@ -143,6 +143,27 @@ function calcPerp() {
         return;
     }
 
+    
+    // --- Logical validation for long/short ---
+if (side === "long" && tp <= entry) {
+    out.innerHTML = `<div class="error">For LONG: TP must be > Entry</div>`;
+    return;
+}
+if (side === "short" && tp >= entry) {
+    out.innerHTML = `<div class="error">For SHORT: TP must be < Entry</div>`;
+    return;
+}
+
+if (sl) {
+    if (side === "long" && sl >= entry) {
+        out.innerHTML = `<div class="error">For LONG: SL must be < Entry</div>`;
+        return;
+    }
+    if (side === "short" && sl <= entry) {
+        out.innerHTML = `<div class="error">For SHORT: SL must be > Entry</div>`;
+        return;
+    }
+}
     // Position size: (margin * lev) / entry
     const size = (margin * lev) / entry;
 
@@ -343,3 +364,33 @@ function drawPerpChart(entry, tp, sl) {
 
     box.appendChild(svg);
 }
+
+
+// =========================
+// LOCAL STORAGE (save form)
+// =========================
+
+const PERP_FIELDS = [
+  "symbol", "perp_margin", "perp_entry",
+  "perp_tp", "perp_sl", "perp_leverage", "perp_fee"
+];
+
+function saveField(id) {
+  const el = document.getElementById(id);
+  if (el) localStorage.setItem("perp_" + id, el.value);
+}
+
+PERP_FIELDS.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", () => saveField(id));
+});
+
+(function loadSaved() {
+  PERP_FIELDS.forEach(id => {
+    const v = localStorage.getItem("perp_" + id);
+    if (v !== null) {
+      const el = document.getElementById(id);
+      if (el) el.value = v;
+    }
+  });
+})();
