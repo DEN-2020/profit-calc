@@ -1,168 +1,129 @@
-// =====================
-// Helpers
-// =====================
+// ===========================
+// SIMPLE INVESTMENT CALCULATOR
+// ===========================
+
+// helpers
 const G = id => document.getElementById(id);
 const num = id => parseFloat(G(id).value) || 0;
 
 G("inv-calc-btn").addEventListener("click", calcInvest);
 
-// =====================
-// Correct Investment Engine
-// =====================
 function calcInvest() {
-  const start = num("inv_amount");
-  const pctMonth = num("inv_pct") / 100;    // monthly %
-  const months = num("inv_months");
+    const amount = num("inv_amount");          // стартовый депозит
+    const pct = num("inv_pct") / 100;          // % в месяц
+    const months = num("inv_months");          // срок
+    const reinvPeriod = parseInt(G("inv_reinvest_period").value); // 0/1/3/6/12
+    const reinvAmount = num("inv_reinvest_value"); // сколько добавлять
 
-  const capFreq = parseInt(G("inv_freq").value);  // 0/1/30/90/180/365
-  const reinvPeriod = parseInt(G("inv_reinvest_period").value); 
-  const reinvType = G("inv_reinvest_type").value;
-  const reinvVal = num("inv_reinvest_value");
+    let balance = amount;
+    const logs = [];
 
- let apr = start;
-let apy = start;
+    for (let m = 1; m <= months; m++) {
 
-let aprBase = start; // APR всегда считает от начального депозита
+        // прибыль за месяц
+        const profit = balance * pct;
+        balance += profit;
 
-for (let m = 1; m <= months; m++) {
-
-    // --- APR (simple) ---
-    apr = aprBase + aprBase * pctMonth * m;
-
-
-    // --- APY (compound) ---
-    if (capFreq === 0) {
-        // no compounding — тело НЕ растёт
-        // apy не меняем тут
-    }
-
-    else if (capFreq === 1) {
-        // daily compounding (30 days)
-        for (let d = 0; d < 30; d++) {
-            apy *= (1 + dailyRate);
+        // ручной реинвест / долив — если указан период
+        if (reinvPeriod > 0 && m % reinvPeriod === 0) {
+            balance += reinvAmount;
         }
+
+        logs.push({
+            m,
+            balance: balance,
+            profit: profit
+        });
     }
 
-    else if (capFreq === 30) {
-        // monthly compounding
-        apy *= (1 + pctMonth);
-    }
+    const final = balance;
+    const roi = ((final - amount) / amount) * 100;
 
-    else {
-        // period compounding 90/180/365
-        if ((m * 30) % capFreq === 0) {
-            apy *= (1 + pctMonth);
-        }
-    }
-
-    // --- REINVEST — только увеличивает тело ---
-    if (reinvPeriod > 0 && m % reinvPeriod === 0) {
-        let monthlyProfit = apy * pctMonth * reinvPeriod;
-
-        if (reinvType === "profit_full") {
-            apy += monthlyProfit;
-
-        } else if (reinvType === "profit_percent") {
-            apy += monthlyProfit * (reinvVal / 100);
-
-        } else if (reinvType === "fixed_amount") {
-            apy += reinvVal;
-        }
-    }
-
-    logs.push({ m, apr, apy });
+    renderResult(amount, final, roi, logs);
+    drawChart(logs);
 }
 
-  const roiApr = ((apr - start) / start) * 100;
-  const roiApy = ((apy - start) / start) * 100;
 
-  renderResult(start, apr, apy, roiApr, roiApy);
-  drawChart(logs);
+// ===========================
+// RESULT BLOCK
+// ===========================
+
+function renderResult(start, final, roi, logs) {
+    G("inv-result").innerHTML = `
+      <div class="result-grid">
+
+        <div class="res-item">
+          <div class="res-icon">S</div>
+          <div class="res-content">
+            <span class="res-label">Start</span>
+            <span class="res-value">${start.toFixed(2)}$</span>
+          </div>
+        </div>
+
+        <div class="res-item">
+          <div class="res-icon">F</div>
+          <div class="res-content">
+            <span class="res-label">Final balance</span>
+            <span class="res-value green">${final.toFixed(2)}$</span>
+          </div>
+        </div>
+
+        <div class="res-item">
+          <div class="res-icon">%</div>
+          <div class="res-content">
+            <span class="res-label">ROI</span>
+            <span class="res-value">${roi.toFixed(2)}%</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="inv-table">
+        ${logs.slice(-6).map(r => `
+          <div class="inv-row">
+            <span>Month ${r.m}</span>
+            <span>${r.balance.toFixed(2)}$</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
 }
 
-// =======================
-// Result UI
-// =======================
-function renderResult(start, fs, fc, rs, rc) {
-  G("inv-result").innerHTML = `
-    <div class="result-grid">
 
-      <div class="res-item">
-        <div class="res-icon">S</div>
-        <div class="res-content">
-          <span class="res-label">Start</span>
-          <span class="res-value">${start.toFixed(2)}$</span>
-        </div>
-      </div>
+// ===========================
+// SIMPLE LINE CHART
+// ===========================
 
-      <div class="res-item">
-        <div class="res-icon">A</div>
-        <div class="res-content">
-          <span class="res-label">Final APR</span>
-          <span class="res-value">${fs.toFixed(2)}$</span>
-        </div>
-      </div>
-
-      <div class="res-item">
-        <div class="res-icon">Y</div>
-        <div class="res-content">
-          <span class="res-label">Final APY</span>
-          <span class="res-value green">${fc.toFixed(2)}$</span>
-        </div>
-      </div>
-
-      <div class="res-item">
-        <div class="res-icon">%</div>
-        <div class="res-content">
-          <span class="res-label">ROI APR</span>
-          <span class="res-value">${rs.toFixed(2)}%</span>
-        </div>
-      </div>
-
-      <div class="res-item">
-        <div class="res-icon">%</div>
-        <div class="res-content">
-          <span class="res-label">ROI APY</span>
-          <span class="res-value green">${rc.toFixed(2)}%</span>
-        </div>
-      </div>
-
-    </div>
-  `;
-}
-
-// =======================
-// Chart
-// =======================
 function drawChart(logs) {
-  const box = G("inv-chart");
-  box.innerHTML = "";
+    const box = G("inv-chart");
+    box.innerHTML = "";
 
-  const svgNS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(svgNS, "svg");
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
 
-  svg.setAttribute("viewBox", "0 0 360 150");
-  svg.style.width = "100%";
+    svg.setAttribute("viewBox", "0 0 360 150");
+    svg.style.width = "100%";
 
-  const values = logs.map(l => l.apy);
-  const minV = Math.min(...values);
-  const maxV = Math.max(...values);
-  const span = maxV - minV || 1;
+    const values = logs.map(l => l.balance);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const span = maxVal - minVal || 1;
 
-  const x = i => 20 + (i / (logs.length - 1)) * 320;
-  const y = v => 130 - ((v - minV) / span) * 100;
+    const x = i => 20 + (i / (logs.length - 1)) * 320;
+    const y = v => 130 - ((v - minVal) / span) * 100;
 
-  let p = "";
-  logs.forEach((r, i) => {
-    p += (i === 0 ? "M" : "L") + x(i) + " " + y(r.apy) + " ";
-  });
+    let path = "";
 
-  const path = document.createElementNS(svgNS, "path");
-  path.setAttribute("d", p);
-  path.setAttribute("stroke", "#4bb8ff");
-  path.setAttribute("fill", "none");
-  path.setAttribute("stroke-width", "2");
+    logs.forEach((v, i) => {
+        path += (i === 0 ? "M" : "L") + x(i) + " " + y(v.balance) + " ";
+    });
 
-  svg.appendChild(path);
-  box.appendChild(svg);
+    const line = document.createElementNS(svgNS, "path");
+    line.setAttribute("d", path);
+    line.setAttribute("stroke", "#4bb8ff");
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke-width", "2");
+
+    svg.appendChild(line);
+    box.appendChild(svg);
 }
