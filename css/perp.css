@@ -48,15 +48,17 @@
   flex: 1;
 }
 
-/* =========================================
-   ICON + AUTOCOMPLETE (для symbol)
-========================================= */
-
-..input-wrap {
+/* ICON + AUTOCOMPLETE (для symbol) */
+.input-wrap {
   position: relative;
   flex: 1.2;
   min-width: 0;
   box-sizing: border-box;
+}
+
+.icon-input {
+  display: flex;
+  width: 100%;
 }
 
 .icon-input input {
