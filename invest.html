@@ -29,74 +29,107 @@
 
 <main class="app-main">
 
+  <!-- =======================
+       INPUT FORM
+  ======================== -->
   <section class="card">
     <h1>Investment Calculator</h1>
 
     <form id="inv-form" class="form">
 
-  <div class="inv-grid">
+      <div class="inv-grid">
 
-    <div class="form-row">
-      <label for="inv_amount">Initial amount ($)</label>
-      <input id="inv_amount" type="number" value="10000" step="0.01">
-    </div>
+        <div class="form-row">
+          <label for="inv_amount">Initial amount ($)</label>
+          <input id="inv_amount" type="number" value="10000" step="0.01">
+        </div>
 
-    <div class="form-row">
-      <label for="inv_pct">Monthly %</label>
-      <input id="inv_pct" type="number" value="3.4" step="0.01">
-    </div>
+        <div class="form-row">
+          <label for="inv_pct">Monthly %</label>
+          <input id="inv_pct" type="number" value="3.4" step="0.01">
+        </div>
 
-    <div class="form-row">
-      <label for="inv_months">Period (months)</label>
-      <input id="inv_months" type="number" value="12" min="1">
-    </div>
+        <div class="form-row">
+          <label for="inv_months">Period (months)</label>
+          <input id="inv_months" type="number" value="12" min="1">
+        </div>
 
-    <div class="form-row">
-      <label for="inv_freq">Capitalization</label>
-      <select id="inv_freq">
-        <option value="0">No reinvest</option>
-        <option value="1">Daily</option>
-        <option value="30">Monthly</option>
-        <option value="90">Quarterly</option>
-        <option value="180">Semiannual</option>
-        <option value="365">Yearly</option>
-      </select>
-    </div>
+        <div class="form-row">
+          <label for="inv_freq">Capitalization</label>
+          <select id="inv_freq">
+            <option value="0">No reinvest</option>
+            <option value="1">Daily</option>
+            <option value="30">Monthly</option>
+            <option value="90">Quarterly</option>
+            <option value="180">Semiannual</option>
+            <option value="365">Yearly</option>
+          </select>
+        </div>
 
-    <div class="form-row">
-      <label for="inv_type">Interest type</label>
-      <select id="inv_type">
-        <option value="simple">APR (simple)</option>
-        <option value="compound" selected>APY (compound)</option>
-      </select>
-    </div>
+        <div class="form-row">
+          <label for="inv_type">Interest type</label>
+          <select id="inv_type">
+            <option value="simple">APR (simple)</option>
+            <option value="compound" selected>APY (compound)</option>
+          </select>
+        </div>
 
-    <div class="form-row">
-      <label for="inv_add">Monthly deposit ($)</label>
-      <input id="inv_add" type="number" placeholder="Optional" step="0.01">
-    </div>
+        <div class="form-row">
+          <label for="inv_reinvest_period">Reinvest every</label>
+          <select id="inv_reinvest_period">
+            <option value="0">No reinvest</option>
+            <option value="1">Every month</option>
+            <option value="3">Every 3 months</option>
+            <option value="6">Every 6 months</option>
+            <option value="12">Every 12 months</option>
+          </select>
+        </div>
 
-    <div class="form-row">
-      <label for="inv_withdraw">Monthly withdraw ($)</label>
-      <input id="inv_withdraw" type="number" placeholder="Optional" step="0.01">
-    </div>
+        <div class="form-row">
+          <label for="inv_reinvest_type">Reinvest type</label>
+          <select id="inv_reinvest_type">
+            <option value="profit_full">Full profit</option>
+            <option value="profit_percent">Part of profit (%)</option>
+            <option value="fixed_amount">Fixed amount ($)</option>
+          </select>
+        </div>
 
-  </div>
+        <div class="form-row">
+          <label for="inv_reinvest_value">Reinvest value</label>
+          <input id="inv_reinvest_value" type="number" placeholder="e.g. 50">
+        </div>
 
-  <div class="form-actions" style="margin-top:16px;">
-    <button type="button" id="inv-calc-btn">Calculate</button>
-  </div>
+        <div class="form-row">
+          <label for="inv_add">Monthly deposit ($)</label>
+          <input id="inv_add" type="number" placeholder="Optional" step="0.01">
+        </div>
 
-</form>
+        <div class="form-row">
+          <label for="inv_withdraw">Monthly withdraw ($)</label>
+          <input id="inv_withdraw" type="number" placeholder="Optional" step="0.01">
+        </div>
 
-    
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="inv-calc-btn">Calculate</button>
+      </div>
+
+    </form>
+
   </section>
 
+  <!-- =======================
+       SUMMARY
+  ======================== -->
   <section class="card">
     <h2>Summary</h2>
     <div id="inv-result" class="result-block"></div>
   </section>
 
+  <!-- =======================
+       CHART
+  ======================== -->
   <section class="card">
     <h2>Growth Chart</h2>
     <div id="inv-chart" class="chart-placeholder"></div>
