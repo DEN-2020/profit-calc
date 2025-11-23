@@ -1,130 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>ProfitCalc</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title>ProfitCalc</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<!-- Manifest for PWA -->
-<link rel="manifest" href="manifest.json">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
 
-<style>
-/* === GLOBAL STYLES === */
-:root {
-  --bg-dark: rgba(0,0,0,0.65);
-  --card-bg: rgba(20,20,20,0.75);
-  --text: #e5e5e5;
-  --accent: #4bb8ff;
-  --border: #2c2c2c;
-}
+  <!-- GLOBAL STYLES -->
+  <link rel="stylesheet" href="css/main.css">
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, sans-serif;
-  color: var(--text);
-  background: #000 url("assets/bg.jpg") center/cover no-repeat fixed;
-}
+  <!-- Online/Offline -->
+  <script src="js/offline.js" defer></script>
 
-/* overlay darkness */
-body::before {
-  content:"";
-  position: fixed;
-  left:0; top:0;
-  width:100%; height:100%;
-  background: var(--bg-dark);
-  backdrop-filter: blur(4px);
-  z-index:-1;
-}
-
-/* header */
-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 16px;
-  background: rgba(0,0,0,0.35);
-  border-bottom:1px solid var(--border);
-}
-
-.logo {
-  font-size:20px;
-  font-weight:600;
-  color: var(--accent);
-}
-
-.nav a {
-  margin-left:10px;
-  text-decoration:none;
-  color: var(--text);
-  font-size:14px;
-}
-
-.nav a.active {
-  color: var(--accent);
-  font-weight:600;
-}
-
-.status-indicator {
-  padding:4px 10px;
-  border-radius:6px;
-  font-size:12px;
-}
-
-.online { background:#1c7d29; }
-.offline { background:#7d1c1c; }
-
-/* content */
-main {
-  padding: 20px;
-}
-
-.card {
-  background:var(--card-bg);
-  padding:20px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  margin-bottom:20px;
-  backdrop-filter: blur(4px);
-}
-
-.card h1, .card h2 {
-  margin-top:0;
-  color:var(--accent);
-}
-</style>
-
-<script>
-// ONLINE / OFFLINE detector
-function updateStatus() {
-  const el = document.getElementById("status-dot");
-  if (navigator.onLine) {
-    el.textContent = "Online";
-    el.classList.remove("offline");
-    el.classList.add("online");
-  } else {
-    el.textContent = "Offline";
-    el.classList.remove("online");
-    el.classList.add("offline");
-  }
-}
-
-window.addEventListener("online", updateStatus);
-window.addEventListener("offline", updateStatus);
-
-window.onload = updateStatus;
-</script>
-
-<!-- Service worker -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
+  <!-- Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
 </head>
 
 <body>
-<header>
+
+<header class="app-header">
   <div class="logo">ProfitCalc</div>
 
   <nav class="nav">
@@ -134,20 +34,21 @@ if ("serviceWorker" in navigator) {
     <a href="strategy.html">Strategy</a>
   </nav>
 
-  <span id="status-dot" class="status-indicator offline">Offline</span>
+  <span id="offline-indicator" class="status-indicator offline">Offline</span>
 </header>
 
-<main>
+<main class="app-main">
+
   <section class="card">
     <h1>Welcome</h1>
-    <p>
-      Choose calculator mode:
-    </p>
-    <p>
-      👉 <b>Spot</b> — simple calculations (no leverage).<br>
-      👉 <b>Perp</b> — futures with leverage, SL/TP, R:R.
-    </p>
+    <p>Select calculation mode:</p>
+    <ul>
+      <li><b>Spot</b> — no leverage, simple TP/SL math.</li>
+      <li><b>Perp</b> — futures, leverage, ROE, SL/TP distance.</li>
+      <li><b>Strategy</b> — risk-reward simulation & scenario testing.</li>
+    </ul>
   </section>
+
 </main>
 
 </body>
