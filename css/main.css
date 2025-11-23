@@ -46,6 +46,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;         /* <<< ВОТ ЭТО ДОБАВИТЬ */
   background: rgba(15, 15, 15, 0.75);
   border-bottom: 1px solid var(--border);
   padding: 12px 18px;
@@ -66,7 +67,8 @@ body::before {
 
 .nav {
   display: flex;
-  flex-wrap: wrap;  
+  flex-wrap: wrap; 
+  flex-grow:1;
   gap: 12px;            
   justify-content: center;   
   align-items: center;
