@@ -3,38 +3,38 @@
    Работает поверх main.css
 ========================================= */
 
-/* -----------------------------------------
-   ICON + AUTOCOMPLETE (для поля Symbol)
-------------------------------------------*/
+/* =========================================
+   FIXED — SYMBOL INPUT (ровно как в spot)
+========================================= */
 
 .input-wrap {
   position: relative;
-  width: 100%;
-  box-sizing: border-box;
+  flex: 1.2;         /* РОВНО как у обычного input */
+  min-width: 0;
 }
 
-/* обёртка с иконкой и инпутом в одной линии */
 .icon-input {
-  display: flex;
   width: 100%;
+  position: relative;
 }
 
-/* сам инпут: как на Spot — отступ под кружок */
 .icon-input input {
   width: 100%;
   box-sizing: border-box;
-  padding-left: 42px;   /* важно: чтобы текст не налезал на иконку */
+  padding-left: 42px;      /* место под круг */
+  padding-right: 8px;
 }
 
-/* кружок-иконка монеты */
+/* Кружок-иконка */
 .symbol-icon-img {
   width: 22px;
   height: 22px;
   border-radius: 50%;
   position: absolute;
-  left: 10px;
+  left: 12px;              /* выравниваем как в spot */
   top: 50%;
   transform: translateY(-50%);
+  pointer-events: none;
 }
 
 /* -----------------------------------------
