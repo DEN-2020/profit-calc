@@ -37,7 +37,7 @@ let ALL_SYMBOLS = [];
 // =========================
 //  ICON LOADER
 // =========================
-const ICON_CDN = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/icons/128/color/";
+const ICON_CDN = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/";
 
 function updateSymbolIcon(sym) {
     const el = document.getElementById("symbol-icon");
