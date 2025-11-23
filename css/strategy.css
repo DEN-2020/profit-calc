@@ -1,0 +1,236 @@
+/* css/strategy.css */
+/* ================================
+   STRATEGY PAGE
+   ================================ */
+
+.card-subtitle {
+  font-size: 13px;
+  opacity: 0.75;
+  margin-bottom: 10px;
+}
+
+/* FORM GRID (как на spot, но отдельно на случай изменений) */
+.form-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.form-row input {
+  width: 100%;
+  padding: 9px 11px;
+  background: #101118;
+  border: 1px solid #242632;
+  border-radius: 8px;
+  color: #eee;
+}
+
+.form-row input:focus {
+  outline: none;
+  border-color: #4bb8ff;
+}
+
+.form-actions button {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #4bb8ff22;
+  border: 1px solid #4bb8ff;
+  color: #4bb8ff;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.form-actions button:hover {
+  background: #4bb8ff44;
+}
+
+/* ================================
+   SUMMARY BADGE
+   ================================ */
+
+.strategy-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #151625;
+  border: 1px solid #2b2d40;
+}
+
+.health-grade {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  color: #000;
+}
+
+.health-A { background: #4ade80; }
+.health-B { background: #22c55e; }
+.health-C { background: #facc15; }
+.health-D { background: #fb923c; }
+.health-F { background: #f97373; }
+
+.health-text-main {
+  font-size: 14px;
+}
+
+.health-text-sub {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* ================================
+   RESULT GRID
+   ================================ */
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.res-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  background: #15161d;
+  border-radius: 10px;
+  min-height: 48px;
+  box-shadow: 0 0 0 1px #1f2030 inset;
+}
+
+.res-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #22232f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.res-content {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.res-label {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.res-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* badges / colors */
+
+.badge {
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-green  { background: #22c55e; color: #000; }
+.badge-red    { background: #f97373; color: #000; }
+.badge-yellow { background: #facc15; color: #000; }
+.badge-blue   { background: #38bdf8; color: #000; }
+
+.green  { color: #4ade80; }
+.red    { color: #f97373; }
+.orange { color: #fb923c; }
+
+/* ================================
+   CHART BLOCK
+   ================================ */
+
+.chart-placeholder {
+  background: #0d0f17;
+  border-radius: 12px;
+  padding: 10px;
+  min-height: 120px;
+  border: 1px solid #1c1e2a;
+  margin-top: 4px;
+}
+
+/* Bars */
+
+.strat-bars {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.strat-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.strat-bar-label {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.strat-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #151827;
+  overflow: hidden;
+}
+
+.strat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* colors для баров */
+.bar-edge    { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.bar-risk    { background: linear-gradient(90deg, #f97373, #ef4444); }
+.bar-stability { background: linear-gradient(90deg, #38bdf8, #6366f1); }
+
+/* MOBILE */
+@media (max-width: 520px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .res-item {
+    min-height: 44px;
+  }
+
+  .res-value {
+    font-size: 13px;
+  }
+}
