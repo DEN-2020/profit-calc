@@ -1,1 +1,95 @@
+<!-- strategy.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Strategy Risk Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/strategy.css">
+
+  <script src="js/strategy.js" defer></script>
+</head>
+
+<body>
+<header class="app-header">
+  <div class="logo">ProfitCalc</div>
+
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="spot.html">Spot</a>
+    <a href="perp.html">Perp</a>
+    <a href="strategy.html" class="active">Strategy</a>
+  </nav>
+
+  <div class="status">
+    <span id="offline-indicator" class="status-indicator offline">Offline</span>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <section class="card">
+    <h1>Strategy Risk & Edge</h1>
+    <p class="card-subtitle">
+      Оцени матожидание, риск вылета и «здоровье» стратегии до реальных сделок.
+    </p>
+
+    <form id="strategy-form" class="form">
+
+      <div class="form-row">
+        <label for="start_capital">Start capital ($)</label>
+        <input id="start_capital" type="number" value="1000" step="10">
+      </div>
+
+      <div class="form-row">
+        <label for="winrate">Winrate (%)</label>
+        <input id="winrate" type="number" value="45" step="0.1">
+      </div>
+
+      <div class="form-row">
+        <label for="rr">Reward : Risk (R:R)</label>
+        <input id="rr" type="number" value="2.5" step="0.1">
+      </div>
+
+      <div class="form-row">
+        <label for="risk_pct">Risk per trade (%)</label>
+        <input id="risk_pct" type="number" value="2" step="0.1">
+      </div>
+
+      <div class="form-row">
+        <label for="trades">Trades count</label>
+        <input id="trades" type="number" value="100" step="1">
+      </div>
+
+      <div class="form-row">
+        <label for="fee_pct">Fee per round-trip (%)</label>
+        <input id="fee_pct" type="number" value="0.2" step="0.01">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="strategy-calc-btn">Analyze strategy</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card card--compact">
+    <h2>Summary</h2>
+    <div id="strategy-summary" class="strategy-summary"></div>
+  </section>
+
+  <section class="card">
+    <h2>Details</h2>
+    <div id="strategy-result" class="result-block"></div>
+  </section>
+
+  <section class="card">
+    <h2>Equity & Risk View (approx)</h2>
+    <div id="strategy-chart" class="chart-placeholder"></div>
+  </section>
+
+</main>
+
+</body>
+</html>
