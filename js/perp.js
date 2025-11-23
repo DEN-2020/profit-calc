@@ -35,29 +35,32 @@ let ALL_SYMBOLS = [];
 
 
 // =========================
+// =========================
 //  ICON LOADER
 // =========================
-const ICON_CDN = "https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons@master/icons/128/color/";
+const ICON_CDN =
+  "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/";
 
 function updateSymbolIcon(sym) {
-    const el = document.getElementById("symbol-icon");
-    if (!el) return;
+  const el = document.getElementById("symbol-icon");
+  if (!el) return;
 
-    if (!sym) {
-        el.src = "img/blank.png";
-        return;
-    }
+  if (!sym) {
+    el.src = "img/blank.png";
+    return;
+  }
 
-    // extract BTC from BTCUSDT / BTCUSD / BTCBUSD
-    const base = sym.replace(/USDT|USD|BUSD/i, "").toLowerCase();
-    const url = `${ICON_CDN}${base}.png`;
+  const base = sym.replace(/USDT|USD|BUSD/i, "").toLowerCase(); // BTCUSDT -> btc
+  const url = `${ICON_CDN}${base}.png`;
 
-    fetch(url, { method: "HEAD" })
-        .then(r => el.src = r.ok ? url : "img/blank.png")
-        .catch(() => el.src = "img/blank.png");
+  fetch(url, { method: "HEAD" })
+    .then((r) => {
+      el.src = r.ok ? url : "img/blank.png";
+    })
+    .catch(() => {
+      el.src = "img/blank.png";
+    });
 }
-
-
 // =========================
 //  AUTOCOMPLETE
 // =========================
