@@ -199,18 +199,18 @@ if (btn) {
 // Health assessment
 // --------------------------
 function assessHealth(evR, pf, riskPct, ruinProb) {
-  // evR — в "R", pf — profit factor
+  // evR — expected value in R units, pf — profit factor
   const evAbs = evR;
 
   if (!Number.isFinite(evAbs) || !Number.isFinite(pf)) {
-    return { grade: "F", main: "Invalid math", sub: "Check inputs." };
+    return { grade: "F", main: "Invalid input", sub: "Check parameters." };
   }
 
   if (evAbs <= 0 || pf <= 1) {
     return {
       grade: "F",
       main: "Negative edge",
-      sub: "Математика против тебя. Такая стратегия сольёт депозит на дистанции.",
+      sub: "Math is against you. This strategy will lose money long-term.",
     };
   }
 
@@ -218,7 +218,7 @@ function assessHealth(evR, pf, riskPct, ruinProb) {
     return {
       grade: "A",
       main: "Strong positive edge",
-      sub: "Хороший запас по матожиданию и разумный риск. Подходит для долгой жизни и роста.",
+      sub: "Great expectancy and controlled risk. Good for long-term growth.",
     };
   }
 
@@ -226,22 +226,22 @@ function assessHealth(evR, pf, riskPct, ruinProb) {
     return {
       grade: "B",
       main: "Profitable but aggressive",
-      sub: "Матожидание ок, но следи за просадками и дисциплиной по риску.",
+      sub: "Good math, but drawdown management is important.",
     };
   }
 
   if (evAbs > 0.05 && pf > 1.2) {
     return {
       grade: "C",
-      main: "Weak but workable edge",
-      sub: "Маленькое преимущество. Любые ошибки и комиссии могут съесть доход.",
+      main: "Weak but positive edge",
+      sub: "Small advantage. Fees and mistakes can erase profit.",
     };
   }
 
   return {
     grade: "D",
     main: "Fragile / borderline strategy",
-    sub: "Еле-еле в плюсе по математике. Требуется доработка входов или R:R.",
+    sub: "Barely profitable. Needs better entries or higher R:R.",
   };
 }
 
