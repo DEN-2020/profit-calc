@@ -60,11 +60,23 @@ body::before {
   color: var(--accent);
 }
 
+/* ===========================
+   FIXED — RESPONSIVE NAV BAR
+=========================== */
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;  
+  gap: 12px;            
+  justify-content: center;   
+  align-items: center;
+}
+
 .nav a {
-  margin-left: 14px;
   text-decoration: none;
   color: var(--text-muted);
   font-size: 14px;
+  padding: 4px 6px;
 }
 
 .nav a.active {
