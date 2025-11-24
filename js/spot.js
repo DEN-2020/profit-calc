@@ -30,7 +30,9 @@ function loadSaved() {
   SPOT_FIELDS.forEach((id) => {
     const val = localStorage.getItem("spot_" + id);
     const el = document.getElementById(id);
-    if (el && val !== null) el.value = val;
+    if (el && val !== null) {
+      el.value = val;
+    }
   });
 }
 
@@ -45,31 +47,9 @@ SPOT_FIELDS.forEach((id) => {
   if (el) el.addEventListener("input", () => saveValue(id));
 });
 
+// сначала загрузим сохранённые значения
 loadSaved();
 
-
-// ------------------------------
-// DEFAULT SYMBOL ON FIRST LOAD
-// ------------------------------
-(function initDefaultSymbol() {
-  const el = document.getElementById("symbol");
-  if (!el) return;
-
-  // если в LocalStorage НЕТ сохранённого символа → ставим BTCUSDT
-  if (!el.value || el.value.trim() === "") {
-    el.value = "BTCUSDT";
-    localStorage.setItem("spot_symbol", "BTCUSDT");
-  }
-
-  // обновляем иконку
-  updateSymbolIcon(el.value.trim().toUpperCase());
-
-  // грузим цену
-  setTimeout(() => {
-    const btn = document.getElementById("update-price-btn");
-    if (btn) btn.click();
-  }, 150);
-})();
 
 // --------------------------
 // Helpers (formatting)
@@ -116,7 +96,7 @@ function updateSymbolIcon(sym) {
   const url = `${ICON_CDN}${base}.png`;
 
   fetch(url, { method: "HEAD" })
-    .then(res => {
+    .then((res) => {
       el.src = res.ok ? url : "img/blank.png";
     })
     .catch(() => {
@@ -128,10 +108,10 @@ function updateSymbolIcon(sym) {
 // ==============================
 // Autocomplete + Price Loader
 // ==============================
-let ALL_SYMBOLS = [];
-
 import { loadSymbols } from "./symbols.js";
 import { getPrice } from "./binance.js";
+
+let ALL_SYMBOLS = [];
 
 (async () => {
   ALL_SYMBOLS = await loadSymbols();
@@ -142,30 +122,34 @@ const auto = document.getElementById("symbol-autocomplete");
 const entryEl = document.getElementById("entry");
 const priceEl = document.getElementById("live-price");
 
-symbolEl.addEventListener("input", () => {
-  const val = symbolEl.value.trim().toUpperCase();
-  updateSymbolIcon(val);
+if (symbolEl) {
+  symbolEl.addEventListener("input", () => {
+    const val = symbolEl.value.trim().toUpperCase();
+    updateSymbolIcon(val);
 
-  auto.innerHTML = "";
-  if (!val) return;
+    auto.innerHTML = "";
+    if (!val) return;
 
-  const matches = ALL_SYMBOLS.filter(s => s.startsWith(val)).slice(0, 15);
+    const matches = ALL_SYMBOLS
+      .filter((s) => s.startsWith(val))
+      .slice(0, 15);
 
-  matches.forEach(m => {
-    const item = document.createElement("div");
-    item.className = "autocomplete-item";
-    item.textContent = m;
+    matches.forEach((m) => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-item";
+      item.textContent = m;
 
-    item.onclick = () => {
-      symbolEl.value = m;
-      updateSymbolIcon(m);
-      auto.innerHTML = "";
-      loadPrice();
-    };
+      item.onclick = () => {
+        symbolEl.value = m;
+        updateSymbolIcon(m);
+        auto.innerHTML = "";
+        loadPrice();
+      };
 
-    auto.appendChild(item);
+      auto.appendChild(item);
+    });
   });
-});
+}
 
 async function loadPrice() {
   const sym = symbolEl.value.trim().toUpperCase();
@@ -184,7 +168,10 @@ async function loadPrice() {
   }
 }
 
-document.getElementById("update-price-btn").addEventListener("click", loadPrice);
+const btnUpdatePrice = document.getElementById("update-price-btn");
+if (btnUpdatePrice) {
+  btnUpdatePrice.addEventListener("click", loadPrice);
+}
 
 
 // --------------------------
@@ -195,13 +182,15 @@ const resultBox = document.getElementById("spot-result");
 
 if (btnCalc) {
   btnCalc.addEventListener("click", () => {
-    const sym = (document.getElementById("symbol").value || "").trim().toUpperCase();
+    const sym = (document.getElementById("symbol").value || "")
+      .trim()
+      .toUpperCase();
     const capital = parseFloat(document.getElementById("capital").value);
-    const entry   = parseFloat(document.getElementById("entry").value);
-    const tp      = parseFloat(document.getElementById("tp").value);
-    const slRaw   = document.getElementById("sl").value;
-    const sl      = slRaw === "" ? null : parseFloat(slRaw);
-    const feePct  = parseFloat(document.getElementById("fee").value);
+    const entry = parseFloat(document.getElementById("entry").value);
+    const tp = parseFloat(document.getElementById("tp").value);
+    const slRaw = document.getElementById("sl").value;
+    const sl = slRaw === "" ? null : parseFloat(slRaw);
+    const feePct = parseFloat(document.getElementById("fee").value);
 
     if (!resultBox) return;
 
@@ -216,7 +205,7 @@ if (btnCalc) {
 
     const feeRate = (feePct || 0) / 100;
     const feeEntry = size * entry * feeRate;
-    const feeExit  = size * tp    * feeRate;
+    const feeExit = size * tp * feeRate;
     const totalFees = feeEntry + feeExit;
 
     const grossProfit = (tp - entry) * size;
@@ -225,7 +214,7 @@ if (btnCalc) {
 
     // Доп. метрики
     const tpDistPct = ((tp - entry) / entry) * 100;
-    const breakevenPrice = entry + (totalFees / size);
+    const breakevenPrice = entry + totalFees / size;
 
     // Risk (SL)
     let riskHtml = "";
@@ -235,8 +224,8 @@ if (btnCalc) {
     let slDistPct = null;
 
     if (sl && sl > 0) {
-      const slLossPrice = (entry - sl) * size;     // убыток по движению цены (без знака ещё не меняем)
-      const feeSlExit = size * sl * feeRate;       // комиссия выхода по SL
+      const slLossPrice = (entry - sl) * size;
+      const feeSlExit = size * sl * feeRate;
       const netLoss = slLossPrice + feeEntry + feeSlExit;
       netLossAbs = Math.abs(netLoss);
       riskPctAbs = (netLossAbs / capital) * 100;
@@ -387,7 +376,7 @@ function drawSpotChart(entry, tp, sl) {
   const maxP = Math.max(...values);
   const span = maxP - minP || 1;
 
-  const x = price => 30 + ((price - minP) / span) * 300;
+  const x = (price) => 30 + ((price - minP) / span) * 300;
 
   // фон
   const bg = document.createElementNS(svgNS, "rect");
@@ -428,37 +417,35 @@ function drawSpotChart(entry, tp, sl) {
   }
 
   function mark(price, color, label) {
-  const px = x(price);
+    const px = x(price);
 
-  const line = document.createElementNS(svgNS, "line");
-  line.setAttribute("x1", px);
-  line.setAttribute("x2", px);
-  line.setAttribute("y1", 40);
-  line.setAttribute("y2", 75);
-  line.setAttribute("stroke", color);
-  line.setAttribute("stroke-width", "2.4");
-  svg.appendChild(line);
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", px);
+    line.setAttribute("x2", px);
+    line.setAttribute("y1", 40);
+    line.setAttribute("y2", 75);
+    line.setAttribute("stroke", color);
+    line.setAttribute("stroke-width", "2.4");
+    svg.appendChild(line);
 
-  const dot = document.createElementNS(svgNS, "circle");
-  dot.setAttribute("cx", px);
-  dot.setAttribute("cy", "75");
-  dot.setAttribute("r", "4");
-  dot.setAttribute("fill", color);
-  svg.appendChild(dot);
+    const dot = document.createElementNS(svgNS, "circle");
+    dot.setAttribute("cx", px);
+    dot.setAttribute("cy", "75");
+    dot.setAttribute("r", "4");
+    dot.setAttribute("fill", color);
+    svg.appendChild(dot);
 
-  const text = document.createElementNS(svgNS, "text");
-  text.setAttribute("x", px);
+    const text = document.createElementNS(svgNS, "text");
+    text.setAttribute("x", px);
 
-  
-  const textY = label === "Entry" ? 18 : 24;
-  text.setAttribute("y", textY);
-  
+    const textY = label === "Entry" ? 18 : 24;
+    text.setAttribute("y", textY);
 
-  text.setAttribute("fill", color);
-  text.setAttribute("font-size", "11");
-  text.setAttribute("text-anchor", "middle");
-  text.textContent = `${label} ${price}`;
-  svg.appendChild(text);
+    text.setAttribute("fill", color);
+    text.setAttribute("font-size", "11");
+    text.setAttribute("text-anchor", "middle");
+    text.textContent = `${label} ${price}`;
+    svg.appendChild(text);
   }
 
   mark(entry, "#4bb8ff", "Entry");
@@ -468,23 +455,20 @@ function drawSpotChart(entry, tp, sl) {
   box.appendChild(svg);
 }
 
+
 // =====================================
 //  DEFAULT SYMBOL + AUTO PRICE (SPOT)
 // =====================================
-
 document.addEventListener("DOMContentLoaded", () => {
-    const DEFAULT_SYMBOL = "BTCUSDT";
+  const DEFAULT_SYMBOL = "BTCUSDT";
 
-    // Если пусто – подставить дефолт
-    if (symbolEl && !symbolEl.value.trim()) {
-        symbolEl.value = DEFAULT_SYMBOL;
-    }
+  if (symbolEl && !symbolEl.value.trim()) {
+    symbolEl.value = DEFAULT_SYMBOL;
+  }
 
-    // Всегда обновить иконку под текущий symbol
-    updateSymbolIcon(symbolEl.value);
+  updateSymbolIcon(symbolEl.value.trim().toUpperCase());
 
-    // Попробовать загрузить цену автоматически
-    if (typeof loadPrice === "function") {
-        loadPrice();
-    }
+  if (typeof loadPrice === "function") {
+    loadPrice();
+  }
 });
