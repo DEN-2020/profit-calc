@@ -1,4 +1,4 @@
-// DOM READY v=10 (fixed reinvest + correct monthly compounding)
+// DOM READY v=11 (fixed logic + improved chart + correct reinvest)
 document.addEventListener("DOMContentLoaded", () => {
 
   // ONLINE BADGE
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       calcInvest();
     } catch (e) {
       console.error(e);
-      G("inv-result").innerHTML = `<div class="error">JS Error: ${e.message}</div>`;
+      G("inv-result").innerHTML = `<div class="error">${e.message}</div>`;
     }
   });
 
@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!start || !pct || !months) {
       G("inv-result").innerHTML = "<div class='error'>Fill the fields</div>";
-      G("inv-chart").innerHTML = "";
       return;
     }
 
@@ -52,21 +51,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 1) прибыль месяца
       const profit = balance * pct;
-
-      // 2) добавляем прибыль
       balance += profit;
 
-      // 3) если настало время добавлять внешние деньги
+      // 2) ре-инвест (внешние деньги)
       if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
         balance += reinvValue;
         totalInvested += reinvValue;
       }
 
-      logs.push({
-        m,
-        balance,
-        profit
-      });
+      logs.push({ m, balance, profit });
     }
 
     const finalBalance = balance;
@@ -81,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
       finalBalance,
       totalProfit,
       lastMonthProfit: logs.at(-1).profit,
-      month6: logs.find(x => x.m === 6)?.balance || start,
       logs
     });
 
@@ -89,14 +81,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ============================
-  // RESULT
+  // RESULT PANEL
   // ============================
   function renderResult(d) {
 
     const reinfText =
       d.reinvEvery > 0 && d.reinvValue > 0
-        ? `Every ${d.reinvEvery} months: +${d.reinvValue}$`
+        ? `+${d.reinvValue}$ every ${d.reinvEvery} months`
         : "No reinvest";
+
+    const monthlyAPR = d.start * (num("inv_pct") / 100); // фиксированный
+    const profitPeriod = d.finalBalance - d.start;
 
     G("inv-result").innerHTML = `
       <div class="result-grid">
@@ -107,28 +102,23 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div class="res-item"><div class="res-icon">Σ</div>
-          <div class="res-content"><span>Total invested</span>
+          <div class="res-content"><span>Total Invested</span>
           <span class="res-value">${d.totalInvested.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">F</div>
-          <div class="res-content"><span>Final balance</span>
+          <div class="res-content"><span>Final Balance</span>
           <span class="res-value">${d.finalBalance.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">P</div>
-          <div class="res-content"><span>Total profit</span>
+          <div class="res-content"><span>Total Profit</span>
           <span class="res-value green">${d.totalProfit.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item"><div class="res-icon">6</div>
-          <div class="res-content"><span>At month 6</span>
-          <span class="res-value">${d.month6.toFixed(2)}$</span></div>
-        </div>
-
-        <div class="res-item"><div class="res-icon">$</div>
-          <div class="res-content"><span>Last month profit</span>
-          <span class="res-value">${d.lastMonthProfit.toFixed(2)}$</span></div>
+        <div class="res-item"><div class="res-icon">M</div>
+          <div class="res-content"><span>Profit per month</span>
+          <span class="res-value">${monthlyAPR.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">R</div>
@@ -136,12 +126,17 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="res-value">${reinfText}</span></div>
         </div>
 
+        <div class="res-item"><div class="res-icon">📈</div>
+          <div class="res-content"><span>Profit for period</span>
+          <span class="res-value">${profitPeriod.toFixed(2)}$</span></div>
+        </div>
+
       </div>
     `;
   }
 
   // ============================
-  // SVG CHART
+  // SVG CHART (improved)
   // ============================
   function drawChart(logs) {
     const box = G("inv-chart");
@@ -149,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("viewBox", "0 0 400 180");
+    svg.setAttribute("viewBox", "0 0 420 200");
     svg.style.width = "100%";
 
     const vals = logs.map(x => x.balance);
@@ -157,10 +152,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const max = Math.max(...vals);
     const span = max - min || 1;
 
+    // линия
     let pathD = "";
     logs.forEach((r, i) => {
-      const x = 30 + (i / (logs.length - 1)) * 340;
-      const y = 150 - ((r.balance - min) / span) * 120;
+      const x = 40 + (i / (logs.length - 1)) * 340;
+      const y = 160 - ((r.balance - min) / span) * 120;
       pathD += `${i === 0 ? "M" : "L"}${x},${y} `;
     });
 
@@ -172,23 +168,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     svg.appendChild(path);
 
-    // min/max labels
-    const minText = document.createElementNS(svgNS, "text");
-    minText.setAttribute("x", 5);
-    minText.setAttribute("y", 150);
-    minText.setAttribute("fill", "#888");
-    minText.setAttribute("font-size", "10");
-    minText.textContent = min.toFixed(0);
+    // подписи min/max
+    const labelMin = document.createElementNS(svgNS, "text");
+    labelMin.setAttribute("x", 5);
+    labelMin.setAttribute("y", 165);
+    labelMin.setAttribute("fill", "#888");
+    labelMin.textContent = min.toFixed(0);
 
-    const maxText = document.createElementNS(svgNS, "text");
-    maxText.setAttribute("x", 5);
-    maxText.setAttribute("y", 30);
-    maxText.setAttribute("fill", "#888");
-    maxText.setAttribute("font-size", "10");
-    maxText.textContent = max.toFixed(0);
+    const labelMax = document.createElementNS(svgNS, "text");
+    labelMax.setAttribute("x", 5);
+    labelMax.setAttribute("y", 40);
+    labelMax.setAttribute("fill", "#888");
+    labelMax.textContent = max.toFixed(0);
 
-    svg.appendChild(minText);
-    svg.appendChild(maxText);
+    svg.appendChild(labelMin);
+    svg.appendChild(labelMax);
+
+    // подписи месяцев
+    logs.forEach((r, i) => {
+      if (i % 3 === 0) {
+        const tx = document.createElementNS(svgNS, "text");
+        tx.setAttribute("x", 40 + (i / (logs.length - 1)) * 340);
+        tx.setAttribute("y", 180);
+        tx.setAttribute("font-size", "10");
+        tx.setAttribute("fill", "#aaa");
+        tx.textContent = r.m;
+        svg.appendChild(tx);
+      }
+    });
 
     box.appendChild(svg);
   }
