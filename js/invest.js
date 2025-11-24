@@ -1,4 +1,4 @@
-// Всё оборачиваем в DOMContentLoaded
+// Всё оборачиваем в DOMContentLoaded v=3
 document.addEventListener("DOMContentLoaded", () => {
 
   // =======================
