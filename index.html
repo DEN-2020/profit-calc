@@ -5,16 +5,11 @@
   <title>ProfitCalc</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- GLOBAL STYLES -->
   <link rel="stylesheet" href="css/main.css">
 
-  <!-- Online/Offline -->
   <script src="js/offline.js" defer></script>
 
-  <!-- Service Worker -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
@@ -22,7 +17,7 @@
   </script>
 </head>
 
-<body>
+<body class="home-bg">
 
 <header class="app-header">
   <div class="logo-wrap">
@@ -38,35 +33,40 @@
     <a href="invest.html">Invest</a>
   </nav>
 </header>
-<main class="app-main home-bg">
 
-  <section class="home-card card">
+<main class="app-main">
 
-    <h1 class="home-title">Welcome <span class="wave">👋</span></h1>
+  <section class="card home-card">
+
+    <h1 class="home-title">
+      Welcome <span class="wave">👋</span>
+    </h1>
 
     <p class="home-subtitle">
-      Fast crypto-profit calculators with a clean, modern UI.<br>
-      Choose your mode:
+      Fast crypto profit-calculators with a clean UI.
+      <br>
+      Choose a tool:
     </p>
 
+    <!-- GRID -->
     <div class="home-grid">
 
       <a class="home-box" href="spot.html">
         <div class="hb-icon">S</div>
         <div class="hb-title">Spot Calculator</div>
-        <div class="hb-desc">Simple TP / SL / Profit math</div>
+        <div class="hb-desc">Simple TP / SL, profit math</div>
       </a>
 
       <a class="home-box" href="perp.html">
         <div class="hb-icon">P</div>
         <div class="hb-title">Perp Calculator</div>
-        <div class="hb-desc">Leverage, ROE, Liquidation</div>
+        <div class="hb-desc">Leverage, ROE, liquidation</div>
       </a>
 
       <a class="home-box" href="strategy.html">
         <div class="hb-icon">R</div>
         <div class="hb-title">Strategy Simulator</div>
-        <div class="hb-desc">Risk-reward scenarios</div>
+        <div class="hb-desc">Scenarios & risk-reward</div>
       </a>
 
       <a class="home-box" href="invest.html">
@@ -78,7 +78,7 @@
     </div>
 
     <div class="home-footer-note">
-      More tools are in development…
+      .. some sections still in development …
     </div>
 
   </section>
