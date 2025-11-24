@@ -9,12 +9,6 @@
   <link rel="stylesheet" href="css/main.css">
 
   <script src="js/offline.js" defer></script>
-
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
 </head>
 
 <body class="home-bg">
@@ -24,63 +18,48 @@
     <div class="logo">ProfitCalc</div>
     <span id="offline-indicator" class="status-indicator offline">Offline</span>
   </div>
-
-  <nav class="nav">
-    <a href="index.html" class="active">Home</a>
-    <a href="spot.html">Spot</a>
-    <a href="perp.html">Perp</a>
-    <a href="strategy.html">Strategy</a>
-    <a href="invest.html">Invest</a>
-  </nav>
 </header>
 
 <main class="app-main">
 
-  <section class="card home-card">
-
-    <h1 class="home-title">
-      Welcome <span class="wave">👋</span>
-    </h1>
-
+  <section class="home-card">
+    <h1 class="home-title">Welcome <span class="wave">👋</span></h1>
     <p class="home-subtitle">
-      Fast crypto profit-calculators with a clean UI.
-      <br>
-      Choose a tool:
+      Fast crypto-profit calculators with a clean, modern UI.<br>
+      Choose your tool:
     </p>
 
-    <!-- GRID -->
     <div class="home-grid">
 
       <a class="home-box" href="spot.html">
         <div class="hb-icon">S</div>
         <div class="hb-title">Spot Calculator</div>
-        <div class="hb-desc">Simple TP / SL, profit math</div>
+        <div class="hb-desc">Simple TP/SL math</div>
       </a>
 
       <a class="home-box" href="perp.html">
         <div class="hb-icon">P</div>
         <div class="hb-title">Perp Calculator</div>
-        <div class="hb-desc">Leverage, ROE, liquidation</div>
+        <div class="hb-desc">Leverage · ROE · Liquidation</div>
       </a>
 
       <a class="home-box" href="strategy.html">
         <div class="hb-icon">R</div>
         <div class="hb-title">Strategy Simulator</div>
-        <div class="hb-desc">Scenarios & risk-reward</div>
+        <div class="hb-desc">Risk-reward scenarios</div>
       </a>
 
       <a class="home-box" href="invest.html">
         <div class="hb-icon">I</div>
         <div class="hb-title">Investment</div>
-        <div class="hb-desc">Interest, reinvest, compounding</div>
+        <div class="hb-desc">Interest · reinvest · compounding</div>
       </a>
 
     </div>
 
     <div class="home-footer-note">
-      .. some sections still in development …
+      More tools are in development…
     </div>
-
   </section>
 
 </main>
