@@ -1,23 +1,40 @@
-/* ===========================
-   FIX FOR INVEST PAGE
-   override main.css form-row
-=========================== */
+/* Узкий контейнер, чтобы на мобиле не расползалось */
+.app-main {
+  max-width: 480px;
+  margin: 0 auto;
+}
 
+/* Сетка формы */
+.inv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 16px;
+}
+
+/* Внутри inv-grid form-row без нижнего отступа,
+   лейбл сверху, инпут на всю ширину */
 .inv-grid .form-row {
-  display: block !important;      /* вместо flex */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 0;
 }
 
-.inv-grid .form-row label {
-  margin-bottom: 6px;
-  display: block;
+.inv-grid label {
+  margin-bottom: 4px;
+  font-size: 14px;
 }
 
-.inv-grid .form-row input,
-.inv-grid .form-row select {
+/* Чуть уменьшим инпуты */
+.inv-grid input,
+.inv-grid select {
   width: 100%;
-  flex: none !important;
   box-sizing: border-box;
+  padding: 8px;
+  font-size: 14px;
 }
+
+/* Табличка/список (если захочешь добавить) */
 .inv-table {
   margin-top: 14px;
   border: 1px solid var(--border);
@@ -37,41 +54,15 @@
   border-bottom: none;
 }
 
+/* Чарт */
 .chart-placeholder svg {
   width: 100%;
   height: 180px;
 }
 
-/* --- GRID FORM (compact) --- */
-.inv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px 18px;
-}
-
-.inv-grid .form-row {
-  margin-bottom: 0;
-}
-
-/* Make label above input (more compact) */
-.inv-grid label {
-  margin-bottom: 4px;
-  display: block;
-}
-
-/* mobile fallback */
+/* На очень узких экранах одна колонка */
 @media (max-width: 480px) {
   .inv-grid {
     grid-template-columns: 1fr;
   }
-}
-
-.error {
-  margin-top: 6px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 13px;
-  background: rgba(255, 0, 0, 0.08);
-  border: 1px solid rgba(255, 0, 0, 0.4);
-  color: #ff5e5e;
 }
