@@ -1,17 +1,20 @@
-/* ================================
-   SPOT PAGE — FULL STYLE
+/* ============================================
+   SPOT PAGE — CLEAN FINAL VERSION
    Compact Result + Autocomplete
-   ================================ */
+   ============================================ */
 
-/* --- Live Price Box --- */
+/* --------------------------------------------
+   LIVE PRICE BOX
+-------------------------------------------- */
 .live-price-box {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #14141c;
+  background: rgba(20,20,25,0.75);
   padding: 10px 12px;
   border-radius: 8px;
   margin-bottom: 12px;
+  border: 1px solid #252735;
 }
 
 .live-price-box label {
@@ -32,92 +35,83 @@
   color: #bbb;
   cursor: pointer;
 }
-
 #update-price-btn:hover {
   background: #333;
 }
 
-
-/* ================================
-   AUTOCOMPLETE
-   ================================ */
+/* --------------------------------------------
+   SYMBOL + AUTOCOMPLETE
+-------------------------------------------- */
 .symbol-wrap {
   position: relative;
-}
-
-.symbol-input-box {
-  position: relative;
   width: 100%;
 }
-
-.autocomplete-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #11131a;
-  border: 1px solid #252735;
-  border-radius: 6px;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 99;
-}
-
-.autocomplete-item {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.autocomplete-item:hover {
-  background: #1a1c26;
-}
-
 
 .icon-input {
   position: relative;
+  width: 100%;
 }
 
 .symbol-icon-img {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   object-fit: cover;
   pointer-events: none;
   opacity: 0.9;
 }
 
-.icon-input input {
-  padding-left: 38px !important;
-}
-
-.symbol-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  width: 22px;
-  height: 22px;
-  transform: translateY(-50%);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
+/* гарантированно одинаковый отступ под иконку */
+.icon-input input,
 .input-wrap input {
-  padding-left: 40px !important;
+  padding-left: 42px !important;
 }
 
-/* ================================
-   RESULT BLOCK (compact)
-   ================================ */
+/* FIX: input-wrap в SPOT */
+.input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* DROPDOWN */
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin-top: 4px;
+  background: rgba(12, 12, 12, 0.95);
+  border: 1px solid #333;
+  border-radius: 8px;
+  z-index: 99;
+  max-height: 220px;
+  overflow-y: auto;
+  backdrop-filter: blur(6px);
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.autocomplete-item:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+/* --------------------------------------------
+   RESULT GRID
+-------------------------------------------- */
 .result-grid,
 .result-risk {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
 }
 
 .res-item {
@@ -154,34 +148,19 @@
   font-size: 11px;
   opacity: 0.6;
 }
-
 .res-value {
   font-size: 14px;
   font-weight: 600;
 }
 
 /* Colors */
-.green { color: #51ff84; }
-.red   { color: #ff5e5e; }
-.orange{ color: #ffb65e; }
+.green  { color: #51ff84; }
+.red    { color: #ff5e5e; }
+.orange { color: #ffb65e; }
 
-/* Compact badges */
-.badge {
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.badge-green { background: #0f0; color: #000; }
-.badge-red   { background: #f33; color: #000; }
-.badge-blue  { background: #09f; color: #000; }
-.badge-orange{ background: #fa0; color: #000; }
-
-
-/* ================================
-   POSITION VIEW (CHART)
-   ================================ */
+/* --------------------------------------------
+   CHART BLOCK
+-------------------------------------------- */
 .chart-placeholder {
   background: #0d0f17;
   border-radius: 12px;
@@ -191,44 +170,34 @@
   margin-top: 12px;
 }
 
-/* SVG text */
-svg text {
-  font-family: inherit;
-}
+/* SVG text inherit */
+svg text { font-family: inherit; }
 
-
-
-.input-wrap {
-  position: relative;
-  width: 100%;
-}
-
-
+/* --------------------------------------------
+   FORM-ACTIONS
+-------------------------------------------- */
 .form-actions button {
   margin-top: 8px;
   padding: 10px 14px;
-  background: #4bb8ff22;
+  background: rgba(75,184,255,0.15);
   border: 1px solid #4bb8ff;
   color: #4bb8ff;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
 }
-
 .form-actions button:hover {
-  background: #4bb8ff44;
+  background: rgba(75,184,255,0.3);
 }
 
-
-/* ================================
-   MOBILE FIX
-   ================================ */
+/* --------------------------------------------
+   MOBILE TWEAKS
+-------------------------------------------- */
 @media (max-width: 480px) {
   .res-item {
     padding: 8px 10px;
     min-height: 44px;
   }
-
   .res-value {
     font-size: 13px;
   }
