@@ -1,7 +1,7 @@
-// DOM READY v=4
+// Investment Calc — clean version v5
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ONLINE INDICATOR
+  // ONLINE STATUS
   function updateOnlineStatus() {
     const el = document.getElementById("offline-indicator");
     if (!el) return;
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // MAIN CALC
+  // MAIN CALC — **NO APY**
   function calcInvest() {
     const start = num("inv_amount");
     const pct = num("inv_pct") / 100;
@@ -36,59 +36,52 @@ document.addEventListener("DOMContentLoaded", () => {
     const reinvValue = num("inv_reinvest_value");
 
     if (!start || !pct || !months) {
-      G("inv-result").innerHTML = "<div class='error'>Fill the fields</div>";
+      G("inv-result").innerHTML = "<div class='error'>Fill all fields</div>";
       G("inv-chart").innerHTML = "";
       return;
     }
 
-    let principalAPR = start;
-    let profitAPR = 0;
-    let balAPY = start;
-
+    let balance = start;
     let reinvEvents = 0;
+
     const logs = [];
 
     for (let m = 1; m <= months; m++) {
-      const monthAPR = principalAPR * pct;
-      profitAPR += monthAPR;
-      const totalAPR = principalAPR + profitAPR;
+      const profit = balance * pct;
+      balance += profit;
 
-      const monthAPY = balAPY * pct;
-      balAPY += monthAPY;
-
-      if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
-        principalAPR += reinvValue;
-        balAPY += reinvValue;
-        reinvEvents++;
+      if (reinvEvery > 0 && m % reinvEvery === 0) {
+        if (reinvValue > 0) {
+          balance += reinvValue;
+          reinvEvents++;
+        }
       }
 
       logs.push({
         m,
-        apr: totalAPR,
-        apy: balAPY,
-        monthAPR,
-        monthAPY
+        balance,
+        profitMonth: profit
       });
     }
 
     const totalInvested = start + reinvEvents * reinvValue;
+    const finalBalance = logs.at(-1).balance;
+    const totalProfit = finalBalance - totalInvested;
+    const avgProfit = totalProfit / months;
 
     renderResult({
       start,
       totalInvested,
-      finalAPR: logs.at(-1).apr,
-      finalAPY: logs.at(-1).apy,
-      profitAPR: logs.at(-1).apr - totalInvested,
-      profitAPY: logs.at(-1).apy - totalInvested,
-      avgAPR: (logs.at(-1).apr - totalInvested) / months,
-      avgAPY: (logs.at(-1).apy - totalInvested) / months,
+      finalBalance,
+      totalProfit,
+      avgProfit,
       logs
     });
 
     drawChart(logs);
   }
 
-  // RESULT BOX
+  // RESULT OUTPUT
   function renderResult(d) {
     const mid = d.logs.find((x) => x.m === 6) || d.logs[0];
 
@@ -96,38 +89,33 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="result-grid">
 
         <div class="res-item"><div class="res-icon">S</div>
-          <div class="res-content"><span>Initial</span>
+          <div class="res-content"><span class="res-label">Initial</span>
           <span class="res-value">${d.start.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">Σ</div>
-          <div class="res-content"><span>Total invested</span>
+          <div class="res-content"><span class="res-label">Total invested</span>
           <span class="res-value">${d.totalInvested.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item"><div class="res-icon">A</div>
-          <div class="res-content"><span>Final APR</span>
-          <span class="res-value">${d.finalAPR.toFixed(2)}$</span></div>
+        <div class="res-item"><div class="res-icon">F</div>
+          <div class="res-content"><span class="res-label">Final balance</span>
+          <span class="res-value">${d.finalBalance.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item"><div class="res-icon">Y</div>
-          <div class="res-content"><span>Final APY</span>
-          <span class="res-value green">${d.finalAPY.toFixed(2)}$</span></div>
-        </div>
-
-        <div class="res-item"><div class="res-icon">$</div>
-          <div class="res-content"><span>Monthly APR profit</span>
-          <span class="res-value">${d.avgAPR.toFixed(2)}$</span></div>
+        <div class="res-item"><div class="res-icon">P</div>
+          <div class="res-content"><span class="res-label">Total profit</span>
+          <span class="res-value green">${d.totalProfit.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">$</div>
-          <div class="res-content"><span>Monthly APY profit</span>
-          <span class="res-value green">${d.avgAPY.toFixed(2)}$</span></div>
+          <div class="res-content"><span class="res-label">Avg per month</span>
+          <span class="res-value">${d.avgProfit.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item"><div class="res-icon">M</div>
-          <div class="res-content"><span>Month 6 (APY)</span>
-          <span class="res-value">${mid.apy.toFixed(2)}$</span></div>
+        <div class="res-item"><div class="res-icon">6</div>
+          <div class="res-content"><span class="res-label">At month ${mid.m}</span>
+          <span class="res-value">${mid.balance.toFixed(2)}$</span></div>
         </div>
 
       </div>`;
@@ -143,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     svg.setAttribute("viewBox", "0 0 360 150");
     svg.style.width = "100%";
 
-    const vals = logs.map((l) => l.apy);
+    const vals = logs.map((l) => l.balance);
     const min = Math.min(...vals);
     const max = Math.max(...vals);
     const span = max - min || 1;
@@ -151,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let d = "";
     logs.forEach((r, i) => {
       const x = 20 + (i / (logs.length - 1)) * 320;
-      const y = 120 - ((r.apy - min) / span) * 100;
+      const y = 120 - ((r.balance - min) / span) * 100;
       d += `${i === 0 ? "M" : "L"}${x},${y} `;
     });
 
@@ -164,4 +152,5 @@ document.addEventListener("DOMContentLoaded", () => {
     svg.appendChild(path);
     box.appendChild(svg);
   }
+
 });
