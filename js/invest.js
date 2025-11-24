@@ -1,34 +1,34 @@
-// DOM READY v6 — simple monthly % calculator (NO APY)
+// DOM READY v=7 (Ваш правильный вариант расчёта)
 document.addEventListener("DOMContentLoaded", () => {
 
-  // --------------------------
-  // ONLINE INDICATOR
-  // --------------------------
+  // ONLINE BADGE
   function updateOnlineStatus() {
     const el = document.getElementById("offline-indicator");
-    if (el) {
-      el.textContent = navigator.onLine ? "Online" : "Offline";
-      el.classList.toggle("online", navigator.onLine);
-      el.classList.toggle("offline", !navigator.onLine);
-    }
+    if (!el) return;
+    el.textContent = navigator.onLine ? "Online" : "Offline";
+    el.classList.toggle("online", navigator.onLine);
+    el.classList.toggle("offline", !navigator.onLine);
   }
   updateOnlineStatus();
   window.addEventListener("online", updateOnlineStatus);
   window.addEventListener("offline", updateOnlineStatus);
 
-  // --------------------------
   // HELPERS
-  // --------------------------
   const G = (id) => document.getElementById(id);
   const num = (id) => parseFloat(G(id)?.value || 0);
 
-  G("inv-calc-btn")?.addEventListener("click", calcInvest);
+  G("inv-calc-btn")?.addEventListener("click", () => {
+    try {
+      calcInvest();
+    } catch (e) {
+      console.error(e);
+      G("inv-result").innerHTML = `<div class="error">JS Error: ${e.message}</div>`;
+    }
+  });
 
-
-
-  // ====================================================
-  // MAIN LOGIC — EXACTLY LIKE YOUR PHONE EXAMPLE
-  // ====================================================
+  // =====================================
+  // MAIN CALCULATION (ВАША ЛОГИКА)
+  // =====================================
   function calcInvest() {
     const start = num("inv_amount");
     const pct = num("inv_pct") / 100;
@@ -38,26 +38,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const reinvValue = num("inv_reinvest_value");
 
     if (!start || !pct || !months) {
-      G("inv-result").innerHTML = "<div class='error'>Fill all fields</div>";
+      G("inv-result").innerHTML = "<div class='error'>Fill the fields</div>";
       G("inv-chart").innerHTML = "";
       return;
     }
 
     let balance = start;
     let totalInvested = start;
-    let totalProfit = 0;
 
     const logs = [];
 
     for (let m = 1; m <= months; m++) {
+      const profit = balance * pct;     // прибыль месяца
+      balance += profit;               // новый баланс
 
-      // -------- MONTHLY PROFIT (simple)
-      const profit = balance * pct;
-
-      balance += profit;
-      totalProfit += profit;
-
-      // -------- REINVEST HANDLER
+      // внешнее добавление средств
       if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
         balance += reinvValue;
         totalInvested += reinvValue;
@@ -65,91 +60,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
       logs.push({
         m,
-        balance: balance,
-        profit: profit
+        balance,
+        profit,
       });
     }
 
+    const finalBalance = balance;
+    const totalProfit = finalBalance - totalInvested;
 
     renderResult({
       start,
       totalInvested,
-      finalBalance: balance,
+      finalBalance,
       totalProfit,
-      first6: logs[5]?.balance || logs.at(-1).balance,
-      profitPerMonth: balance - balance / (1 + pct) // last month's profit
+      lastMonthProfit: logs.at(-1).profit,
+      month6: logs.find(x => x.m === 6)?.balance || start,
+      avgProfit: totalProfit / months,
+      logs
     });
 
     drawChart(logs);
   }
 
-
-
-  // ====================================================
-  // RESULT OUTPUT
-  // ====================================================
+  // =====================================
+  // RESULT RENDER
+  // =====================================
   function renderResult(d) {
-
     G("inv-result").innerHTML = `
       <div class="result-grid">
 
-        <div class="res-item">
-          <div class="res-icon">S</div>
-          <div class="res-content">
-            <span>Initial</span>
-            <span class="res-value">${d.start.toFixed(2)}$</span>
-          </div>
+        <div class="res-item"><div class="res-icon">S</div>
+          <div class="res-content"><span>Initial</span>
+          <span class="res-value">${d.start.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item">
-          <div class="res-icon">Σ</div>
-          <div class="res-content">
-            <span>Total invested</span>
-            <span class="res-value">${d.totalInvested.toFixed(2)}$</span>
-          </div>
+        <div class="res-item"><div class="res-icon">Σ</div>
+          <div class="res-content"><span>Total invested</span>
+          <span class="res-value">${d.totalInvested.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item">
-          <div class="res-icon">F</div>
-          <div class="res-content">
-            <span>Final balance</span>
-            <span class="res-value">${d.finalBalance.toFixed(2)}$</span>
-          </div>
+        <div class="res-item"><div class="res-icon">F</div>
+          <div class="res-content"><span>Final balance</span>
+          <span class="res-value">${d.finalBalance.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item">
-          <div class="res-icon">P</div>
-          <div class="res-content">
-            <span>Total profit</span>
-            <span class="res-value green">${d.totalProfit.toFixed(2)}$</span>
-          </div>
+        <div class="res-item"><div class="res-icon">P</div>
+          <div class="res-content"><span>Total profit</span>
+          <span class="res-value green">${d.totalProfit.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item">
-          <div class="res-icon">6</div>
-          <div class="res-content">
-            <span>At month 6</span>
-            <span class="res-value">${d.first6.toFixed(2)}$</span>
-          </div>
+        <div class="res-item"><div class="res-icon">6</div>
+          <div class="res-content"><span>At month 6</span>
+          <span class="res-value">${d.month6.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item">
-          <div class="res-icon">$</div>
-          <div class="res-content">
-            <span>Last month profit</span>
-            <span class="res-value">${(d.finalBalance * (num("inv_pct") / 100)).toFixed(2)}$</span>
-          </div>
+        <div class="res-item"><div class="res-icon">$</div>
+          <div class="res-content"><span>Last month profit</span>
+          <span class="res-value">${d.lastMonthProfit.toFixed(2)}$</span></div>
+        </div>
+
+        <div class="res-item"><div class="res-icon">~</div>
+          <div class="res-content"><span>Avg per month</span>
+          <span class="res-value">${d.avgProfit.toFixed(2)}$</span></div>
         </div>
 
       </div>
     `;
   }
 
-
-
-  // ====================================================
-  // SVG LINE CHART (simple)
-  // ====================================================
+  // =====================================
+  // COMPACT CHART
+  // =====================================
   function drawChart(logs) {
     const box = G("inv-chart");
     box.innerHTML = "";
@@ -159,9 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
     svg.setAttribute("viewBox", "0 0 360 150");
     svg.style.width = "100%";
 
-    const values = logs.map((l) => l.balance);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
+    const vals = logs.map(l => l.balance);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
     const span = max - min || 1;
 
     let d = "";
@@ -180,5 +161,4 @@ document.addEventListener("DOMContentLoaded", () => {
     svg.appendChild(path);
     box.appendChild(svg);
   }
-
 });
