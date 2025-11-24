@@ -412,23 +412,18 @@ PERP_FIELDS.forEach(id => {
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
-    // === DEFAULT SYMBOL ===
     const DEFAULT_SYMBOL = "BTCUSDT";
 
-    if (symbolEl) {
-        if (!symbolEl.value.trim()) {
-            symbolEl.value = DEFAULT_SYMBOL;
-        }
-
-        updateSymbolIcon(symbolEl.value);
+    // 1) Если в поле ПУСТО — ставим дефолт
+    if (symbolEl && !symbolEl.value.trim()) {
+        symbolEl.value = DEFAULT_SYMBOL;
     }
 
-    // === Option: auto-load price ===
-    try {
-        if (typeof loadLivePrice === "function") {
-            loadLivePrice();
-        }
-    } catch (e) {
-        console.warn("No live price loader:", e);
+    // 2) Всегда обновляем иконку под текущий symbol
+    updateSymbolIcon(symbolEl.value);
+
+    // 3) Если функция загрузки цены есть — сразу подгружаем
+    if (typeof loadLivePrice === "function") {
+        loadLivePrice();
     }
 });
