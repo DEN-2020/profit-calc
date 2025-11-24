@@ -467,3 +467,24 @@ function drawSpotChart(entry, tp, sl) {
 
   box.appendChild(svg);
 }
+
+// =====================================
+//  DEFAULT SYMBOL + AUTO PRICE (SPOT)
+// =====================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    const DEFAULT_SYMBOL = "BTCUSDT";
+
+    // Если пусто – подставить дефолт
+    if (symbolEl && !symbolEl.value.trim()) {
+        symbolEl.value = DEFAULT_SYMBOL;
+    }
+
+    // Всегда обновить иконку под текущий symbol
+    updateSymbolIcon(symbolEl.value);
+
+    // Попробовать загрузить цену автоматически
+    if (typeof loadPrice === "function") {
+        loadPrice();
+    }
+});
