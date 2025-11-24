@@ -19,14 +19,11 @@ body {
   color: var(--text);
   background: var(--bg);
 
-  /* background image — just drop any filename into /img/bg.jpg */
+  /* фон */
   background-image: url('../img/bg.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-
-  /* dark overlay */
-  position: relative;
 }
 
 body::before {
@@ -39,14 +36,14 @@ body::before {
 }
 
 /* ===========================
-   HEADER / NAVIGATION
+        HEADER / NAV
 =========================== */
 
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;         /* <<< ВОТ ЭТО ДОБАВИТЬ */
+  flex-wrap: wrap;
   background: rgba(15, 15, 15, 0.75);
   border-bottom: 1px solid var(--border);
   padding: 12px 18px;
@@ -61,16 +58,18 @@ body::before {
   color: var(--accent);
 }
 
-/* ===========================
-   FIXED — RESPONSIVE NAV BAR
-=========================== */
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
 .nav {
   display: flex;
-  flex-wrap: wrap; 
-  flex-grow:1;
-  gap: 10px;            
-  justify-content: center;   
+  flex-wrap: wrap;
+  flex-grow: 1;
+  gap: 10px;
+  justify-content: center;
   align-items: center;
 }
 
@@ -86,14 +85,6 @@ body::before {
   font-weight: 600;
 }
 
-/* Wrap for logo + badge */
-.logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Style badge: small & clean */
 .status-indicator {
   padding: 2px 6px;
   border-radius: 6px;
@@ -104,21 +95,20 @@ body::before {
   color: #bbb;
 }
 
-/* ONLINE */
 .status-indicator.online {
   background: rgba(0,255,120,0.18);
   border-color: #00ff9c;
   color: #00ff9c;
 }
 
-/* OFFLINE */
 .status-indicator.offline {
   background: rgba(255,0,0,0.18);
   border-color: #ff5e5e;
   color: #ff5e5e;
 }
+
 /* ===========================
-   MAIN LAYOUT / CARDS
+           MAIN
 =========================== */
 
 .app-main {
@@ -143,12 +133,8 @@ body::before {
 }
 
 /* ===========================
-   FORM / INPUTS
+          FORM
 =========================== */
-
-.form {
-  width: 100%;
-}
 
 .form-row {
   display: flex;
@@ -162,7 +148,6 @@ body::before {
   flex: 1;
   font-size: 14px;
   color: var(--text-muted);
-  white-space: nowrap;
 }
 
 .form-row input,
@@ -170,28 +155,15 @@ body::before {
   flex: 1.2;
   padding: 9px;
   font-size: 15px;
-  box-sizing: border-box;
   background: var(--input-bg);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
-  min-width: 0;
 }
 
 .form-row input:focus,
 .form-row select:focus {
-  outline: none;
   border-color: var(--accent);
-}
-
-/* ===========================
-   BUTTONS
-=========================== */
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 14px;
 }
 
 button {
@@ -206,72 +178,26 @@ button {
   font-weight: 600;
 }
 
-button:active {
-  opacity: 0.7;
-}
-
-button.secondary {
-  background: #333;
-  color: var(--text);
-}
-
 /* ===========================
-   RESULT BLOCK
+         RESULT GRID
 =========================== */
-
-.result-block {
-  padding: 12px;
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 14px;
-  line-height: 1.5;
-  white-space: pre-line;
-}
-
-/* ===========================
-   CHART PLACEHOLDER
-=========================== */
-
-.chart-placeholder {
-  width: 100%;
-  height: 200px;
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-/* ============================================
-   UNIVERSAL RESULT GRID (spot/perp/invest)
-   ============================================ */
 
 .result-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
-  margin-top: 10px;
 }
 
-/* CARD ITEM */
 .res-item {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 10px;
   display: flex;
-  align-items: center;
   gap: 10px;
   min-height: 60px;
-
-  /* предотвращает растягивание */
-  box-sizing: border-box;
 }
 
-/* ICON */
 .res-icon {
   width: 38px;
   height: 38px;
@@ -281,254 +207,13 @@ button.secondary {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-/* CONTENT */
-.res-content {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.res-label {
-  font-size: 12px;
-  opacity: .7;
-}
-
-.res-value {
-  font-size: 15px;
   font-weight: 600;
 }
 
-.res-value.green {
-  color: #4cd964;
-}
+/* ===========================
+        HOME PAGE
+=========================== */
 
-/* MOBILE FIX */
-@media (max-width: 480px) {
-  .result-grid {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  }
-}
-
-/* HOME PAGE */
-.home-card {
-  padding: 24px;
-}
-
-.home-title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--accent);
-}
-
-.home-title .emoji {
-  font-size: 26px;
-}
-
-.home-subtitle {
-  opacity: 0.8;
-  margin-bottom: 20px;
-  line-height: 1.4;
-}
-
-/* GRID BUTTONS */
-.home-grid {
-  display: grid;
-  gap: 14px;
-}
-
-.home-btn {
-  display: flex;
-  align-items: center;
-  background: var(--card-bg-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 14px;
-  text-decoration: none;
-  color: white;
-  transition: 0.15s ease;
-}
-
-.home-btn:hover {
-  background: rgba(80, 160, 255, 0.12);
-  border-color: var(--accent);
-}
-
-.hb-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--accent);
-  color: #000;
-  font-weight: 700;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  font-size: 18px;
-}
-
-.hb-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.hb-title {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.hb-desc {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 2px;
-}
-
-/* MOBILE FIX */
-@media (max-width: 480px) {
-  .home-title {
-    font-size: 24px;
-  }
-}
-
-/* -----------------------------
-      HOME PAGE BACKGROUND
-------------------------------*/
-.home-bg {
-  position: relative;
-  padding-top: 20px;
-}
-
-.home-bg::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at 30% 20%, rgba(0,140,255,0.25), transparent 60%),
-              radial-gradient(circle at 70% 80%, rgba(120,0,255,0.25), transparent 60%);
-  filter: blur(60px);
-  z-index: -2;
-}
-
-.home-bg::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
-  z-index: -1;
-}
-
-/* -----------------------------
-      HOME CARD
-------------------------------*/
-.home-card {
-  max-width: 800px;
-  margin: auto;
-  padding: 28px;
-  backdrop-filter: blur(12px);
-  background: rgba(20,20,20,0.65);
-}
-
-.home-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
-
-.wave {
-  animation: waveAnim 1.8s infinite;
-}
-
-@keyframes waveAnim {
-  0% { transform: rotate(0deg); }
-  15% { transform: rotate(20deg); }
-  30% { transform: rotate(0deg); }
-  45% { transform: rotate(20deg); }
-  60% { transform: rotate(0deg); }
-}
-
-/* -----------------------------
-      SUBTITLE
-------------------------------*/
-.home-subtitle {
-  font-size: 15px;
-  opacity: 0.8;
-  margin-bottom: 22px;
-}
-
-/* -----------------------------
-      BUTTON-CARDS GRID
-------------------------------*/
-.home-grid {
-  display: grid;
-  gap: 14px;
-}
-
-@media (min-width: 600px) {
-  .home-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.home-box {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  border-radius: 14px;
-  background: rgba(35,35,35,0.8);
-  border: 1px solid rgba(70,70,70,0.4);
-  text-decoration: none;
-  transition: 0.25s ease;
-}
-
-.home-box:hover {
-  border-color: var(--accent);
-  transform: translateY(-3px);
-  background: rgba(40,40,40,0.9);
-}
-
-/* ICON */
-.hb-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--accent);
-  color: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-/* TITLE */
-.hb-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-/* DESC */
-.hb-desc {
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-/* FOOTER */
-.home-footer-note {
-  margin-top: 25px;
-  opacity: 0.5;
-  font-size: 13px;
-  text-align: center;
-}
-
-
-/* Background blur + gradient */
 .home-bg::before {
   content: "";
   position: fixed;
@@ -548,7 +233,6 @@ button.secondary {
   z-index: -1;
 }
 
-/* Home card container */
 .home-card {
   max-width: 850px;
   margin: auto;
@@ -559,22 +243,18 @@ button.secondary {
   backdrop-filter: blur(14px);
 }
 
-/* Big title */
 .home-title {
   font-size: 32px;
   font-weight: 700;
   color: var(--accent);
-  margin-bottom: 14px;
 }
 
-/* Subtitle */
 .home-subtitle {
   font-size: 15px;
   opacity: 0.8;
   margin-bottom: 26px;
 }
 
-/* Grid of buttons */
 .home-grid {
   display: grid;
   gap: 16px;
@@ -586,7 +266,6 @@ button.secondary {
   }
 }
 
-/* Button-card */
 .home-box {
   display: flex;
   flex-direction: column;
@@ -598,55 +277,32 @@ button.secondary {
   color: white;
   transition: 0.22s ease;
 }
+
 .home-box:hover {
   border-color: var(--accent);
   transform: translateY(-3px);
   background: rgba(40,40,40,0.92);
 }
 
-/* Icon */
 .hb-icon {
   width: 42px;
   height: 42px;
   border-radius: 10px;
   background: var(--accent);
-  color: black;
+  color: #000;
   font-weight: 700;
-  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
 }
 
-/* Title */
 .hb-title {
   font-size: 18px;
   font-weight: 600;
 }
 
-/* Description */
-.hb-desc {
-  font-size: 13px;
-  opacity: 0.7;
-  margin-top: 2px;
-}
-
 .home-footer-note {
   margin-top: 30px;
   opacity: 0.55;
-  font-size: 13px;
   text-align: center;
-}
-
-/* Emoji animation */
-.wave {
-  animation: waveAnim 1.8s infinite;
-}
-@keyframes waveAnim {
-  0% { transform: rotate(0deg); }
-  15% { transform: rotate(18deg); }
-  30% { transform: rotate(0deg); }
-  45% { transform: rotate(18deg); }
-  60% { transform: rotate(0deg); }
 }
