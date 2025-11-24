@@ -16,61 +16,34 @@ function updateOnlineStatus() {
   }
 }
 
-window.addEventListener("online", updateOnlineStatus);
-window.addEventListener("offline", updateOnlineStatus);
-document.addEventListener("DOMContentLoaded", updateOnlineStatus);
-
 // =======================
 // HELPERS
 // =======================
-const G = (id) => document.getElementById(id);
+function G(id) {
+  return document.getElementById(id);
+}
 
-const num = (id) => {
+function num(id) {
   const el = G(id);
   if (!el) return 0;
   const v = parseFloat(el.value);
   return Number.isFinite(v) ? v : 0;
-};
-
-// повесим обработчик с try/catch, чтобы видеть ошибки
-const btn = G("inv-calc-btn");
-if (btn) {
-  btn.addEventListener("click", () => {
-    try {
-      calcInvest();
-    } catch (e) {
-      console.error("Investment calc error:", e);
-      const box = G("inv-result");
-      if (box) {
-        box.innerHTML = `<div class="error">JS error: ${e.message}</div>`;
-      }
-    }
-  });
-} else {
-  console.error("Button #inv-calc-btn not found");
 }
 
 // =======================
 // MAIN CALC
 // =======================
 function calcInvest() {
-  const start = num("inv_amount");       // начальный депозит
-  const pctMonth = num("inv_pct") / 100; // месячный %
-  const months = num("inv_months");      // срок в месяцах
-
-  const selReinv = G("inv_reinvest_period");
-  if (!selReinv) {
-    throw new Error("Select inv_reinvest_period not found");
-  }
-  const reinvEvery = parseInt(selReinv.value, 10) || 0; // каждые N месяцев
-  const reinvValue = num("inv_reinvest_value");         // сумма довноса
+  const start     = num("inv_amount");        // начальный депозит
+  const pctMonth  = num("inv_pct") / 100;     // месячный % (0.034 для 3.4)
+  const months    = num("inv_months");        // срок, мес
+  const reinvEvery = parseInt(G("inv_reinvest_period").value, 10) || 0;
+  const reinvValue = num("inv_reinvest_value"); // довнос каждые N месяцев
 
   const resultBox = G("inv-result");
-  const chartBox = G("inv-chart");
+  const chartBox  = G("inv-chart");
 
-  if (!resultBox || !chartBox) {
-    throw new Error("Result or chart container not found");
-  }
+  if (!resultBox || !chartBox) return;
 
   if (!start || !pctMonth || !months) {
     resultBox.innerHTML =
@@ -80,30 +53,21 @@ function calcInvest() {
   }
 
   // --- APR: простые проценты ---
-  // principalAPR — тело депозита (initial + все довносы),
-  // profitAPR    — накопленная прибыль.
+  // principalAPR — тело (депозит + довносы), только на это считаем %
+  // profitAPR    — накопленная прибыль
   let principalAPR = start;
-  let profitAPR = 0;
+  let profitAPR    = 0;
 
   // --- APY: ежемесячная капитализация ---
   let balAPY = start;
 
-  let reinvEvents = 0; // сколько раз добавляли деньги
+  let reinvEvents = 0;
   const logs = [];
 
-  console.log("=== INVEST CALC START ===", {
-    start,
-    pctMonth,
-    months,
-    reinvEvery,
-    reinvValue
-  });
-
   for (let m = 1; m <= months; m++) {
-    // ===== APR (simple) =====
+    // ===== APR (simple interest) =====
     const monthProfitAPR = principalAPR * pctMonth;
     profitAPR += monthProfitAPR;
-
     const totalAPR = principalAPR + profitAPR;
 
     // ===== APY (monthly compounding) =====
@@ -113,9 +77,8 @@ function calcInvest() {
     // ===== внешние довносы (в конце месяца) =====
     if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
       principalAPR += reinvValue;
-      balAPY += reinvValue;
+      balAPY      += reinvValue;
       reinvEvents += 1;
-      console.log(`Top-up at month ${m}: +${reinvValue}`);
     }
 
     logs.push({
@@ -126,24 +89,14 @@ function calcInvest() {
   }
 
   const totalInvested = start + reinvEvents * reinvValue;
-  const finalAPR = logs[logs.length - 1].apr;
-  const finalAPY = logs[logs.length - 1].apy;
+  const finalAPR      = logs[logs.length - 1].apr;
+  const finalAPY      = logs[logs.length - 1].apy;
 
   const profitAPR = finalAPR - totalInvested;
   const profitAPY = finalAPY - totalInvested;
 
   const roiAPR = totalInvested > 0 ? (profitAPR / totalInvested) * 100 : 0;
   const roiAPY = totalInvested > 0 ? (profitAPY / totalInvested) * 100 : 0;
-
-  console.log("=== INVEST CALC DONE ===", {
-    totalInvested,
-    finalAPR,
-    finalAPY,
-    profitAPR,
-    profitAPY,
-    roiAPR,
-    roiAPY
-  });
 
   renderResult({
     start,
@@ -154,8 +107,10 @@ function calcInvest() {
     profitAPY,
     roiAPR,
     roiAPY,
-    logs
+    logs,
+    pctMonth
   });
+
   drawChart(logs);
 }
 
@@ -172,12 +127,16 @@ function renderResult(data) {
     profitAPY,
     roiAPR,
     roiAPY,
-    logs
+    logs,
+    pctMonth
   } = data;
 
-  const months = logs.length;
+  const months   = logs.length;
   const midMonth = Math.min(6, months);
-  const mid = logs.find((r) => r.m === midMonth) || logs[0];
+  const mid      = logs.find((r) => r.m === midMonth) || logs[0];
+
+  // Текущая "месячная прибыль" по APY на финальном балансе
+  const currentMonthlyProfitAPY = finalAPY * pctMonth;
 
   const resultBox = G("inv-result");
   if (!resultBox) return;
@@ -257,6 +216,16 @@ function renderResult(data) {
         </div>
       </div>
 
+      <div class="res-item">
+        <div class="res-icon">₿</div>
+        <div class="res-content">
+          <span class="res-label">Next month profit (APY)</span>
+          <span class="res-value green">
+            ≈ ${currentMonthlyProfitAPY.toFixed(2)}$
+          </span>
+        </div>
+      </div>
+
     </div>
   `;
 }
@@ -301,3 +270,28 @@ function drawChart(logs) {
   svg.appendChild(path);
   box.appendChild(svg);
 }
+
+// =======================
+// INIT
+// =======================
+document.addEventListener("DOMContentLoaded", () => {
+  updateOnlineStatus();
+  window.addEventListener("online", updateOnlineStatus);
+  window.addEventListener("offline", updateOnlineStatus);
+
+  const btn = G("inv-calc-btn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      try {
+        calcInvest();
+      } catch (e) {
+        console.error("Investment calc error:", e);
+        const box = G("inv-result");
+        if (box) {
+          box.innerHTML =
+            "<div class='error'>JS error: " + (e.message || e) + "</div>";
+        }
+      }
+    });
+  }
+});
