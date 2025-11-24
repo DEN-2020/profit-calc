@@ -28,9 +28,6 @@
 
 <main class="app-main">
 
-  <!-- =======================
-       INPUT FORM
-  ======================== -->
   <section class="card">
     <h1>Investment Calculator</h1>
 
@@ -66,12 +63,12 @@
 
         <div class="form-row">
           <label for="inv_reinvest_value">Amount to add ($)</label>
-          <input id="inv_reinvest_value" type="number" placeholder="0" step="0.01">
+          <input id="inv_reinvest_value" type="number" value="0" step="0.01">
         </div>
 
       </div>
 
-      <div class="form-actions">
+      <div class="form-actions" style="margin-top:12px;">
         <button type="button" id="inv-calc-btn">Calculate</button>
       </div>
 
@@ -79,17 +76,11 @@
 
   </section>
 
-  <!-- =======================
-       SUMMARY
-  ======================== -->
   <section class="card">
     <h2>Summary</h2>
     <div id="inv-result" class="result-block"></div>
   </section>
 
-  <!-- =======================
-       CHART
-  ======================== -->
   <section class="card">
     <h2>Growth Chart</h2>
     <div id="inv-chart" class="chart-placeholder"></div>
