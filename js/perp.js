@@ -410,3 +410,25 @@ PERP_FIELDS.forEach(id => {
     }
   });
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+    // === DEFAULT SYMBOL ===
+    const DEFAULT_SYMBOL = "BTCUSDT";
+
+    if (symbolEl) {
+        if (!symbolEl.value.trim()) {
+            symbolEl.value = DEFAULT_SYMBOL;
+        }
+
+        updateSymbolIcon(symbolEl.value);
+    }
+
+    // === Option: auto-load price ===
+    try {
+        if (typeof loadLivePrice === "function") {
+            loadLivePrice();
+        }
+    } catch (e) {
+        console.warn("No live price loader:", e);
+    }
+});
