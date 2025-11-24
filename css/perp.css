@@ -66,6 +66,62 @@
   background: rgba(255,255,255,0.06);
 }
 
+/* =======================================================
+   FIX: NORMAL FORM-ROW LAYOUT FOR PERP PAGE
+   ======================================================= */
+
+/* выравнивание как в spot/invest */
+#perp-form .form-row {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+/* фикс ширины лейбла */
+#perp-form .form-row label {
+  flex: 0 0 140px;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* input, select и input-wrap — всегда справа */
+#perp-form .form-row input,
+#perp-form .form-row select,
+#perp-form .form-row .input-wrap {
+  flex: 1;
+  width: 100%;
+  max-width: 280px;
+  padding: 9px;
+  margin: 0;
+}
+
+/* убираем лишние отступы у icon-input */
+#perp-form .icon-input {
+  padding: 0 !important;
+}
+#perp-form .icon-input input {
+  padding-left: 42px;
+}
+
+/* MOBILE — но без превращения в столбец (как ты хотел) */
+@media (max-width: 420px) {
+  #perp-form .form-row {
+    flex-direction: row !important;
+  }
+  #perp-form .form-row label {
+    flex: 0 0 110px;
+  }
+  #perp-form .form-row input,
+  #perp-form .form-row select,
+  #perp-form .form-row .input-wrap {
+    max-width: 100%;
+  }
+}
+
 /* -----------------------------------------
    LIVE PRICE BOX (верхний блок с ценой)
 ------------------------------------------*/
