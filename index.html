@@ -35,26 +35,49 @@
     <a href="spot.html">Spot</a>
     <a href="perp.html">Perp</a>
     <a href="strategy.html">Strategy</a>
+    <a href="invest.html">Invest</a>
   </nav>
 </header>
 
 <main class="app-main">
 
   <section class="card">
-    <h1>Welcome</h1>
-    <p>Select calculation mode:</p>
-    <ul>
-      <li><b>Spot</b> — no leverage, simple TP/SL math.</li>
-      <li><b>Perp</b> — futures, leverage, ROE, SL/TP distance.</li>
-      <li><b>Strategy</b> — risk-reward simulation & scenario testing.</li>
-    </ul>
+
+    <h1 style="margin-bottom:6px;">Welcome 👋</h1>
+    <p style="opacity:0.85; margin-bottom:20px;">
+      Fast crypto-profit calculators with clean UI. Choose your mode:
+    </p>
+
+    <div class="home-grid">
+
+      <a href="spot.html" class="home-item">
+        <div class="hi-icon">S</div>
+        <div class="hi-title">Spot Calculator</div>
+        <div class="hi-desc">Simple TP / SL / profit math</div>
+      </a>
+
+      <a href="perp.html" class="home-item">
+        <div class="hi-icon">P</div>
+        <div class="hi-title">Perp Calculator</div>
+        <div class="hi-desc">Leverage, ROE, liquidation, risk</div>
+      </a>
+
+      <a href="strategy.html" class="home-item">
+        <div class="hi-icon">R</div>
+        <div class="hi-title">Strategy</div>
+        <div class="hi-desc">Risk-reward simulation & scenarios</div>
+      </a>
+
+      <a href="invest.html" class="home-item">
+        <div class="hi-icon">I</div>
+        <div class="hi-title">Investment</div>
+        <div class="hi-desc">Interest, reinvest, compounding</div>
+      </a>
+
+    </div>
   </section>
 
 </main>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
+
 </body>
 </html>
