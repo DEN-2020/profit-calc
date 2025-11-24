@@ -1,30 +1,19 @@
-// Всё оборачиваем в DOMContentLoaded v=3
+// DOM READY v=4
 document.addEventListener("DOMContentLoaded", () => {
 
-  // =======================
-  // ONLINE / OFFLINE BADGE
-  // =======================
+  // ONLINE INDICATOR
   function updateOnlineStatus() {
     const el = document.getElementById("offline-indicator");
     if (!el) return;
-
-    if (navigator.onLine) {
-      el.classList.remove("offline");
-      el.classList.add("online");
-      el.textContent = "Online";
-    } else {
-      el.classList.remove("online");
-      el.classList.add("offline");
-      el.textContent = "Offline";
-    }
+    el.textContent = navigator.onLine ? "Online" : "Offline";
+    el.classList.toggle("online", navigator.onLine);
+    el.classList.toggle("offline", !navigator.onLine);
   }
   updateOnlineStatus();
   window.addEventListener("online", updateOnlineStatus);
   window.addEventListener("offline", updateOnlineStatus);
 
-  // =======================
   // HELPERS
-  // =======================
   const G = (id) => document.getElementById(id);
   const num = (id) => parseFloat(G(id)?.value || 0);
 
@@ -32,49 +21,41 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       calcInvest();
     } catch (e) {
-      console.error(e);
       G("inv-result").innerHTML = `<div class="error">JS Error: ${e.message}</div>`;
+      console.error(e);
     }
   });
 
-  // =======================
   // MAIN CALC
-  // =======================
   function calcInvest() {
     const start = num("inv_amount");
-    const pctMonth = num("inv_pct") / 100;
+    const pct = num("inv_pct") / 100;
     const months = num("inv_months");
 
     const reinvEvery = parseInt(G("inv_reinvest_period").value) || 0;
     const reinvValue = num("inv_reinvest_value");
 
-    if (!start || !pctMonth || !months) {
-      G("inv-result").innerHTML = "<div class='error'>Fill amount, % and months.</div>";
+    if (!start || !pct || !months) {
+      G("inv-result").innerHTML = "<div class='error'>Fill the fields</div>";
       G("inv-chart").innerHTML = "";
       return;
     }
 
-    // APR (simple)
     let principalAPR = start;
     let profitAPR = 0;
-
-    // APY (compound)
     let balAPY = start;
 
     let reinvEvents = 0;
-    let logs = [];
+    const logs = [];
 
     for (let m = 1; m <= months; m++) {
-      // APR
-      const monthAPR = principalAPR * pctMonth;
+      const monthAPR = principalAPR * pct;
       profitAPR += monthAPR;
       const totalAPR = principalAPR + profitAPR;
 
-      // APY
-      const monthAPY = balAPY * pctMonth;
+      const monthAPY = balAPY * pct;
       balAPY += monthAPY;
 
-      // Top-up (external)
       if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
         principalAPR += reinvValue;
         balAPY += reinvValue;
@@ -86,81 +67,73 @@ document.addEventListener("DOMContentLoaded", () => {
         apr: totalAPR,
         apy: balAPY,
         monthAPR,
-        monthAPY,
+        monthAPY
       });
     }
 
     const totalInvested = start + reinvEvents * reinvValue;
-    const finalAPR = logs.at(-1).apr;
-    const finalAPY = logs.at(-1).apy;
-
-    const profitAPR = finalAPR - totalInvested;
-    const profitAPY = finalAPY - totalInvested;
 
     renderResult({
       start,
       totalInvested,
-      finalAPR,
-      finalAPY,
-      profitAPR,
-      profitAPY,
-      logs,
+      finalAPR: logs.at(-1).apr,
+      finalAPY: logs.at(-1).apy,
+      profitAPR: logs.at(-1).apr - totalInvested,
+      profitAPY: logs.at(-1).apy - totalInvested,
+      avgAPR: (logs.at(-1).apr - totalInvested) / months,
+      avgAPY: (logs.at(-1).apy - totalInvested) / months,
+      logs
     });
 
     drawChart(logs);
   }
 
-  // =======================
-  // RESULT OUTPUT
-  // =======================
+  // RESULT BOX
   function renderResult(d) {
-    const mid = d.logs.find((r) => r.m === 6) || d.logs[0];
+    const mid = d.logs.find((x) => x.m === 6) || d.logs[0];
 
     G("inv-result").innerHTML = `
       <div class="result-grid">
 
         <div class="res-item"><div class="res-icon">S</div>
-          <div class="res-content"><span class="res-label">Initial</span>
+          <div class="res-content"><span>Initial</span>
           <span class="res-value">${d.start.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">Σ</div>
-          <div class="res-content"><span class="res-label">Total invested</span>
+          <div class="res-content"><span>Total invested</span>
           <span class="res-value">${d.totalInvested.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">A</div>
-          <div class="res-content"><span class="res-label">Final APR</span>
+          <div class="res-content"><span>Final APR</span>
           <span class="res-value">${d.finalAPR.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">Y</div>
-          <div class="res-content"><span class="res-label">Final APY</span>
+          <div class="res-content"><span>Final APY</span>
           <span class="res-value green">${d.finalAPY.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item"><div class="res-icon">P</div>
-          <div class="res-content"><span class="res-label">APR profit</span>
-          <span class="res-value">${d.profitAPR.toFixed(2)}$</span></div>
+        <div class="res-item"><div class="res-icon">$</div>
+          <div class="res-content"><span>Monthly APR profit</span>
+          <span class="res-value">${d.avgAPR.toFixed(2)}$</span></div>
         </div>
 
-        <div class="res-item"><div class="res-icon">P</div>
-          <div class="res-content"><span class="res-label">APY profit</span>
-          <span class="res-value green">${d.profitAPY.toFixed(2)}$</span></div>
+        <div class="res-item"><div class="res-icon">$</div>
+          <div class="res-content"><span>Monthly APY profit</span>
+          <span class="res-value green">${d.avgAPY.toFixed(2)}$</span></div>
         </div>
 
         <div class="res-item"><div class="res-icon">M</div>
-          <div class="res-content"><span class="res-label">Month 6 (APY)</span>
+          <div class="res-content"><span>Month 6 (APY)</span>
           <span class="res-value">${mid.apy.toFixed(2)}$</span></div>
         </div>
 
-      </div>
-    `;
+      </div>`;
   }
 
-  // =======================
   // CHART
-  // =======================
   function drawChart(logs) {
     const box = G("inv-chart");
     box.innerHTML = "";
@@ -175,12 +148,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const max = Math.max(...vals);
     const span = max - min || 1;
 
-    const x = (i) => 20 + (i / (logs.length - 1)) * 320;
-    const y = (v) => 120 - ((v - min) / span) * 100;
-
     let d = "";
     logs.forEach((r, i) => {
-      d += `${i === 0 ? "M" : "L"}${x(i)},${y(r.apy)} `;
+      const x = 20 + (i / (logs.length - 1)) * 320;
+      const y = 120 - ((r.apy - min) / span) * 100;
+      d += `${i === 0 ? "M" : "L"}${x},${y} `;
     });
 
     const path = document.createElementNS(svgNS, "path");
