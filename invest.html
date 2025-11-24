@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/invest.css">
+
   <script type="module" src="js/invest.js" defer></script>
 </head>
 
@@ -51,7 +52,7 @@
         </div>
 
         <div class="form-row">
-          <label for="inv_reinvest_period">Add money every</label>
+          <label for="inv_reinvest_period">Top-up every</label>
           <select id="inv_reinvest_period">
             <option value="0">Never</option>
             <option value="1">Monthly</option>
@@ -62,18 +63,17 @@
         </div>
 
         <div class="form-row">
-          <label for="inv_reinvest_value">Amount to add ($)</label>
+          <label for="inv_reinvest_value">Top-up amount ($)</label>
           <input id="inv_reinvest_value" type="number" value="0" step="0.01">
         </div>
 
       </div>
 
-      <div class="form-actions" style="margin-top:12px;">
+      <div class="form-actions">
         <button type="button" id="inv-calc-btn">Calculate</button>
       </div>
 
     </form>
-
   </section>
 
   <section class="card">
