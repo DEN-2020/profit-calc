@@ -48,6 +48,29 @@ SPOT_FIELDS.forEach((id) => {
 loadSaved();
 
 
+// ------------------------------
+// DEFAULT SYMBOL ON FIRST LOAD
+// ------------------------------
+(function initDefaultSymbol() {
+  const el = document.getElementById("symbol");
+  if (!el) return;
+
+  // если в LocalStorage НЕТ сохранённого символа → ставим BTCUSDT
+  if (!el.value || el.value.trim() === "") {
+    el.value = "BTCUSDT";
+    localStorage.setItem("spot_symbol", "BTCUSDT");
+  }
+
+  // обновляем иконку
+  updateSymbolIcon(el.value.trim().toUpperCase());
+
+  // грузим цену
+  setTimeout(() => {
+    const btn = document.getElementById("update-price-btn");
+    if (btn) btn.click();
+  }, 150);
+})();
+
 // --------------------------
 // Helpers (formatting)
 // --------------------------
