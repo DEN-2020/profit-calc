@@ -72,3 +72,31 @@
   color: var(--text-muted);
   font-size: 14px;
 }
+
+/* =========================================
+   PERP FIX: отключаем spot-иконку и паддинги
+========================================= */
+
+/* отключаем лишние глобальные spot-отступы */
+#perp-form .input-wrap input {
+  padding-left: 10px !important;   /* нормальный отступ */
+}
+
+/* запрещаем подхватывать spot-иконку */
+#perp-form .symbol-icon-img {
+  display: none !important;
+}
+
+/* автокомплит не должен быть под spot-стилями */
+#perp-form .autocomplete-list {
+  z-index: 9999;
+  background: rgba(15,15,15,0.95);
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+/* паддинги в icon-input внутри PERP */
+#perp-form .icon-input input {
+  padding-left: 10px !important;
+}
