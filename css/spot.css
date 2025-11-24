@@ -221,3 +221,10 @@ svg text { font-family: inherit; }
     font-size: 13px;
   }
 }
+/* --- MOBILE: force 2 columns on phones --- */
+@media (max-width: 480px) {
+  .result-grid,
+  .result-risk {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
