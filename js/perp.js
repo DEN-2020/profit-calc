@@ -414,15 +414,16 @@ PERP_FIELDS.forEach(id => {
 document.addEventListener("DOMContentLoaded", () => {
     const DEFAULT_SYMBOL = "BTCUSDT";
 
-    // 1) Если в поле ПУСТО — ставим дефолт
+    // 1. Дефолт монеты если поле пустое
     if (symbolEl && !symbolEl.value.trim()) {
         symbolEl.value = DEFAULT_SYMBOL;
+        localStorage.setItem("perp_symbol", DEFAULT_SYMBOL);
     }
 
-    // 2) Всегда обновляем иконку под текущий symbol
+    // 2. Обновить иконку
     updateSymbolIcon(symbolEl.value);
 
-    // 3) Если функция загрузки цены есть — сразу подгружаем
+    // 3. Загрузить цену
     if (typeof loadLivePrice === "function") {
         loadLivePrice();
     }
