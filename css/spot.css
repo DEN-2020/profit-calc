@@ -197,37 +197,6 @@ svg text {
 }
 
 
-/* ================================
-   FORM FIXES
-   ================================ */
-/* FORM GRID */
-.form-row {
-  display: grid;
-  grid-template-columns: 130px 1fr;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.form-row label {
-  opacity: 0.8;
-  font-size: 14px;
-}
-
-/* Consistent input styling */
-.form-row input {
-  width: 100%;
-  padding: 10px 12px;
-  background: #101118;
-  border: 1px solid #242632;
-  border-radius: 8px;
-  color: #eee;
-}
-
-.form-row input:focus {
-  outline: none;
-  border-color: #4bb8ff;
-}
 
 .input-wrap {
   position: relative;
