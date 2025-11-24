@@ -1,143 +1,249 @@
-// ===== Helpers =====
-const G = id => document.getElementById(id);
-const num = id => parseFloat(G(id).value) || 0;
+// =======================
+// ONLINE / OFFLINE BADGE
+// =======================
+function updateOnlineStatus() {
+  const el = document.getElementById("offline-indicator");
+  if (!el) return;
 
-G("inv-calc-btn").addEventListener("click", calcInvest);
+  if (navigator.onLine) {
+    el.classList.remove("offline");
+    el.classList.add("online");
+    el.textContent = "Online";
+  } else {
+    el.classList.remove("online");
+    el.classList.add("offline");
+    el.textContent = "Offline";
+  }
+}
 
+window.addEventListener("online", updateOnlineStatus);
+window.addEventListener("offline", updateOnlineStatus);
+document.addEventListener("DOMContentLoaded", updateOnlineStatus);
 
-// ===== Main calculator =====
+// =======================
+// SHORT HELPERS
+// =======================
+const G = (id) => document.getElementById(id);
+const num = (id) => {
+  const el = G(id);
+  if (!el) return 0;
+  const v = parseFloat(el.value);
+  return Number.isFinite(v) ? v : 0;
+};
+
+const btn = G("inv-calc-btn");
+if (btn) {
+  btn.addEventListener("click", calcInvest);
+}
+
+// =======================
+// MAIN CALC
+// =======================
 function calcInvest() {
-  const start = num("inv_amount");
-  const pct = num("inv_pct") / 100;
-  const months = num("inv_months");
+  const start = num("inv_amount");          // начальный депозит
+  const pctMonth = num("inv_pct") / 100;    // месячный %
+  const months = num("inv_months");         // срок в месяцах
 
-  const reinvEvery = parseInt(G("inv_reinvest_period").value);
-  const reinvAdd = num("inv_reinvest_value");
+  const reinvEvery = parseInt(G("inv_reinvest_period").value, 10) || 0; // каждые N месяцев
+  const reinvValue = num("inv_reinvest_value");                         // сумма довноса
 
-  const addMonthly = num("inv_add");
-  const withdrawMonthly = num("inv_withdraw");
+  if (!start || !pctMonth || !months) {
+    G("inv-result").innerHTML =
+      "<div class='error'>Fill amount, monthly % and period.</div>";
+    G("inv-chart").innerHTML = "";
+    return;
+  }
 
-  let capital = start;
+  // --- APR: простые проценты ---
+  // principalAPR — тело депозита, на него считается % каждый месяц
+  // profitAPR    — накопленная прибыль, которую можно вывести
+  let principalAPR = start;
+  let profitAPR = 0;
 
-  let logs = [];
-  let profit6 = 0;
-  let profit12 = 0;
+  // --- APY: ежемесячная капитализация ---
+  let balAPY = start;
+
+  let reinvEvents = 0; // сколько раз добавляли деньги
+  const logs = [];
 
   for (let m = 1; m <= months; m++) {
+    // ===== APR (simple) =====
+    const monthProfitAPR = principalAPR * pctMonth;
+    profitAPR += monthProfitAPR;
 
-    const profit = capital * pct;
-    capital += profit;
-
-    profit12 += profit;
-
-    // monthly additions / withdrawals
-    capital += addMonthly;
-    capital -= withdrawMonthly;
-
-    // REINVEST logic
-    if (reinvEvery > 0 && m % reinvEvery === 0) {
-      capital += reinvAdd;
+    // довнос (внешние деньги) каждые N месяцев
+    if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
+      principalAPR += reinvValue; // увеличиваем тело депозита
+      balAPY += reinvValue;       // и для APY тоже
+      reinvEvents += 1;
     }
 
-    // snapshot after 6 months
-    if (m === 6) profit6 = capital - start;
+    const totalAPR = principalAPR + profitAPR;
+
+    // ===== APY (monthly compounding) =====
+    const monthProfitAPY = balAPY * pctMonth;
+    balAPY += monthProfitAPY;
 
     logs.push({
       m,
-      capital: capital
+      apr: totalAPR,
+      apy: balAPY,
     });
   }
 
-  renderResult(start, logs[5].capital, capital, profit6, profit12, reinvEvery, reinvAdd);
+  const totalInvested = start + reinvEvents * reinvValue;
+  const finalAPR = logs[logs.length - 1].apr;
+  const finalAPY = logs[logs.length - 1].apy;
+
+  const profitAPR = finalAPR - totalInvested;
+  const profitAPY = finalAPY - totalInvested;
+
+  const roiAPR =
+    totalInvested > 0 ? (profitAPR / totalInvested) * 100 : 0;
+  const roiAPY =
+    totalInvested > 0 ? (profitAPY / totalInvested) * 100 : 0;
+
+  renderResult({
+    start,
+    totalInvested,
+    finalAPR,
+    finalAPY,
+    profitAPR,
+    profitAPY,
+    roiAPR,
+    roiAPY,
+    logs,
+  });
   drawChart(logs);
 }
 
+// =======================
+// RESULT OUTPUT
+// =======================
+function renderResult(data) {
+  const {
+    start,
+    totalInvested,
+    finalAPR,
+    finalAPY,
+    profitAPR,
+    profitAPY,
+    roiAPR,
+    roiAPY,
+    logs,
+  } = data;
 
-// ===== Result output =====
-function renderResult(start, val6, val12, p6, p12, reinvEvery, reinvAdd) {
+  const months = logs.length;
+  const midMonth = Math.min(6, months); // показываем месяц 6, если срок >=6
+  const mid = logs.find((r) => r.m === midMonth) || logs[0];
 
   G("inv-result").innerHTML = `
-  <div class="result-grid">
+    <div class="result-grid">
 
-    <div class="res-item">
-      <div class="res-icon">💰</div>
-      <div class="res-content">
-        <div class="res-label">Invested</div>
-        <div class="res-value">${start.toFixed(2)}$</div>
+      <div class="res-item">
+        <div class="res-icon">S</div>
+        <div class="res-content">
+          <span class="res-label">Initial</span>
+          <span class="res-value">${start.toFixed(2)}$</span>
+        </div>
       </div>
-    </div>
 
-    <div class="res-item">
-      <div class="res-icon">📆</div>
-      <div class="res-content">
-        <div class="res-label">After 6 months</div>
-        <div class="res-value">${val6.toFixed(2)}$</div>
+      <div class="res-item">
+        <div class="res-icon">Σ</div>
+        <div class="res-content">
+          <span class="res-label">Total invested</span>
+          <span class="res-value">${totalInvested.toFixed(2)}$</span>
+        </div>
       </div>
-    </div>
 
-    <div class="res-item">
-      <div class="res-icon">⏳</div>
-      <div class="res-content">
-        <div class="res-label">Profit 6m</div>
-        <div class="res-value green">${p6.toFixed(2)}$</div>
+      <div class="res-item">
+        <div class="res-icon">A</div>
+        <div class="res-content">
+          <span class="res-label">Final APR</span>
+          <span class="res-value">${finalAPR.toFixed(2)}$</span>
+        </div>
       </div>
-    </div>
 
-    <div class="res-item">
-      <div class="res-icon">📈</div>
-      <div class="res-content">
-        <div class="res-label">After 12 months</div>
-        <div class="res-value green">${val12.toFixed(2)}$</div>
+      <div class="res-item">
+        <div class="res-icon">Y</div>
+        <div class="res-content">
+          <span class="res-label">Final APY</span>
+          <span class="res-value green">${finalAPY.toFixed(2)}$</span>
+        </div>
       </div>
-    </div>
 
-    <div class="res-item">
-      <div class="res-icon">🟩</div>
-      <div class="res-content">
-        <div class="res-label">Profit 12m</div>
-        <div class="res-value green">${p12.toFixed(2)}$</div>
+      <div class="res-item">
+        <div class="res-icon">P</div>
+        <div class="res-content">
+          <span class="res-label">APR profit</span>
+          <span class="res-value">${profitAPR.toFixed(2)}$</span>
+        </div>
       </div>
+
+      <div class="res-item">
+        <div class="res-icon">P</div>
+        <div class="res-content">
+          <span class="res-label">APY profit</span>
+          <span class="res-value green">${profitAPY.toFixed(2)}$</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">%</div>
+        <div class="res-content">
+          <span class="res-label">ROI APR</span>
+          <span class="res-value">${roiAPR.toFixed(2)}%</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">%</div>
+        <div class="res-content">
+          <span class="res-label">ROI APY</span>
+          <span class="res-value green">${roiAPY.toFixed(2)}%</span>
+        </div>
+      </div>
+
+      <div class="res-item">
+        <div class="res-icon">M</div>
+        <div class="res-content">
+          <span class="res-label">Month ${mid.m} (APY)</span>
+          <span class="res-value">${mid.apy.toFixed(2)}$</span>
+        </div>
+      </div>
+
     </div>
-
-    ${
-      reinvEvery > 0
-        ? `<div class="res-item">
-             <div class="res-icon">🔁</div>
-             <div class="res-content">
-               <div class="res-label">Reinvest</div>
-               <div class="res-value">${reinvEvery}m → +${reinvAdd}$</div>
-             </div>
-           </div>`
-        : ""
-    }
-
-  </div>`;
+  `;
 }
 
-
-// ===== Chart =====
+// =======================
+// COMPACT SVG CHART (APY)
+// =======================
 function drawChart(logs) {
   const box = G("inv-chart");
   box.innerHTML = "";
 
+  if (!logs.length) return;
+
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
 
-  svg.setAttribute("viewBox", "0 0 360 160");
+  svg.setAttribute("viewBox", "0 0 360 150");
   svg.style.width = "100%";
 
-  const values = logs.map(l => l.capital);
+  const values = logs.map((l) => l.apy);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
 
-  const x = i => 25 + (i / (logs.length - 1)) * 300;
-  const y = v => 140 - ((v - min) / span) * 110;
+  const x = (i) => 20 + (i / Math.max(1, logs.length - 1)) * 320;
+  const y = (v) => 120 - ((v - min) / span) * 100;
 
-  // Line
   let d = "";
   logs.forEach((row, i) => {
-    d += (i === 0 ? "M" : "L") + x(i) + " " + y(row.capital) + " ";
+    const px = x(i);
+    const py = y(row.apy);
+    d += (i === 0 ? "M" : "L") + px + " " + py + " ";
   });
 
   const path = document.createElementNS(svgNS, "path");
@@ -145,31 +251,7 @@ function drawChart(logs) {
   path.setAttribute("stroke", "#4bb8ff");
   path.setAttribute("stroke-width", "2");
   path.setAttribute("fill", "none");
+
   svg.appendChild(path);
-
-  // Markers + labels
-  logs.forEach((row, i) => {
-    const px = x(i);
-    const py = y(row.capital);
-
-    const dot = document.createElementNS(svgNS, "circle");
-    dot.setAttribute("cx", px);
-    dot.setAttribute("cy", py);
-    dot.setAttribute("r", "3");
-    dot.setAttribute("fill", "#4bb8ff");
-    svg.appendChild(dot);
-
-    if (i % 3 === 0) {
-      const text = document.createElementNS(svgNS, "text");
-      text.setAttribute("x", px);
-      text.setAttribute("y", 155);
-      text.setAttribute("font-size", "10");
-      text.setAttribute("fill", "#888");
-      text.setAttribute("text-anchor", "middle");
-      text.textContent = "M" + row.m;
-      svg.appendChild(text);
-    }
-  });
-
   box.appendChild(svg);
 }
