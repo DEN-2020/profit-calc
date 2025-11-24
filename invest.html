@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/invest.css">
 
-  <script type="module" src="js/invest.js" defer></script>
+  <!-- БЕЗ type="module" -->
+  <script src="js/invest.js" defer></script>
 </head>
 
 <body>
@@ -29,6 +30,9 @@
 
 <main class="app-main">
 
+  <!-- =======================
+       INPUT FORM
+  ======================== -->
   <section class="card">
     <h1>Investment Calculator</h1>
 
@@ -52,7 +56,7 @@
         </div>
 
         <div class="form-row">
-          <label for="inv_reinvest_period">Top-up every</label>
+          <label for="inv_reinvest_period">Add money every</label>
           <select id="inv_reinvest_period">
             <option value="0">Never</option>
             <option value="1">Monthly</option>
@@ -63,8 +67,8 @@
         </div>
 
         <div class="form-row">
-          <label for="inv_reinvest_value">Top-up amount ($)</label>
-          <input id="inv_reinvest_value" type="number" value="0" step="0.01">
+          <label for="inv_reinvest_value">Amount to add ($)</label>
+          <input id="inv_reinvest_value" type="number" placeholder="0" step="0.01">
         </div>
 
       </div>
@@ -74,13 +78,20 @@
       </div>
 
     </form>
+
   </section>
 
+  <!-- =======================
+       SUMMARY
+  ======================== -->
   <section class="card">
     <h2>Summary</h2>
     <div id="inv-result" class="result-block"></div>
   </section>
 
+  <!-- =======================
+       CHART
+  ======================== -->
   <section class="card">
     <h2>Growth Chart</h2>
     <div id="inv-chart" class="chart-placeholder"></div>
