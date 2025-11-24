@@ -133,120 +133,65 @@ body::before {
 }
 
 /* ===========================
-          FORM
-=========================== */
-
-.form-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  gap: 10px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.form-row label {
-  flex: 0 0 auto;
-  font-size: 14px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.form-row input,
-.form-row select {
-  flex: 1;               /* ровно половина строки */
-  max-width: 180px;      /* ограничитель */
-  padding: 9px;
-  font-size: 15px;
-  box-sizing: border-box;
-  background: var(--input-bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  min-width: 0;          /* критично, чтобы не вылазило */
-}
-
-.form-row input:focus,
-.form-row select:focus {
-  border-color: var(--accent);
-}
-
-/* ===========================
-/* ===========================
-          FORM (CLEAN)
+      FORM (FINAL, CLEAN)
 =========================== */
 
 .form-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 14px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 8px;        /* <<< уменьшено — не растягивает */
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Фиксированная ширина лейблов */
+/* Лейбл — одинаковая ширина везде */
 .form-row label {
-  flex: 0 0 150px;
+  flex: 0 0 150px;           /* фикс, как на Spot */
   font-size: 14px;
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-/* Универсальные inputs/select */
+/* Инпуты — ширина авто, максимум не растягиваются */
 .form-row input,
-.form-row select {
-  flex: 1;
-  width: 100%;
-  padding: 9px;
-  font-size: 15px;
-  background: var(--input-bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-
-.form-row input:focus,
-.form-row select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-/* ВАЖНО: input-wrap НЕ input! */
+.form-row select,
 .form-row .input-wrap {
   flex: 1;
   width: 100%;
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: none;
+  max-width: 240px;          /* <<< ограничитель ширины */
+  padding: 8px;
+  font-size: 15px;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   box-sizing: border-box;
 }
 
-/* Мобильная адаптация */
-@media (max-width: 420px) {
+.form-row input:focus,
+.form-row select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* Мобильная версия */
+@media (max-width: 480px) {
   .form-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 6px;
   }
 
   .form-row label {
+    flex: none;
     width: 100%;
   }
-}
 
   .form-row input,
-  .form-row select {
+  .form-row select,
+  .form-row .input-wrap {
     max-width: 100%;
-    width: 100%;
-  }
-
-  .form-row label {
-    width: 100%;
   }
 }
 
