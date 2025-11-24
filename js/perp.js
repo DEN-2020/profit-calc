@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", updateOnlineStatus);
 
 
 // =========================
-//  LOAD SYMBOL LIST & PRICE
+// IMPORTS
 // =========================
 import { loadSymbols } from "./symbols.js";
 import { getPrice } from "./binance.js";
@@ -35,8 +35,7 @@ let ALL_SYMBOLS = [];
 
 
 // =========================
-// =========================
-//  ICON LOADER
+// ICON LOADER
 // =========================
 const ICON_CDN =
   "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/";
@@ -50,19 +49,17 @@ function updateSymbolIcon(sym) {
     return;
   }
 
-  const base = sym.replace(/USDT|USD|BUSD/i, "").toLowerCase(); // BTCUSDT -> btc
+  const base = sym.replace(/USDT|USD|BUSD/i, "").toLowerCase();
   const url = `${ICON_CDN}${base}.png`;
 
   fetch(url, { method: "HEAD" })
-    .then((r) => {
-      el.src = r.ok ? url : "img/blank.png";
-    })
-    .catch(() => {
-      el.src = "img/blank.png";
-    });
+    .then((r) => (el.src = r.ok ? url : "img/blank.png"))
+    .catch(() => (el.src = "img/blank.png"));
 }
+
+
 // =========================
-//  AUTOCOMPLETE
+// AUTOCOMPLETE
 // =========================
 const symbolEl = document.getElementById("symbol");
 const autoEl = document.getElementById("symbol-autocomplete");
@@ -103,6 +100,8 @@ async function loadLivePrice() {
     const sym = symbolEl.value.trim().toUpperCase();
     if (!sym) return;
 
+    updateSymbolIcon(sym);
+
     livePriceEl.textContent = "…";
 
     const px = await getPrice(sym);
@@ -112,18 +111,19 @@ async function loadLivePrice() {
     }
 
     livePriceEl.textContent = px.toFixed(2);
-    entryEl.value = px; // auto-fill
+    entryEl.value = px;
 }
 
-document.getElementById("btn-fetch-price").addEventListener("click", loadLivePrice);
+document.getElementById("btn-fetch-price")
+  .addEventListener("click", loadLivePrice);
 
 
 // =========================
-//  FUTURES MATH
+// FUTURES CALC
 // =========================
 function getNum(id) {
-    const v = parseFloat(document.getElementById(id).value);
-    return isNaN(v) ? null : v;
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? null : v;
 }
 
 function calcPerp() {
@@ -143,31 +143,32 @@ function calcPerp() {
         return;
     }
 
-    
-    // --- Logical validation for long/short ---
-if (side === "long" && tp <= entry) {
-    out.innerHTML = `<div class="error">For LONG: TP must be > Entry</div>`;
-    return;
-}
-if (side === "short" && tp >= entry) {
-    out.innerHTML = `<div class="error">For SHORT: TP must be < Entry</div>`;
-    return;
-}
+    // logic check
+    if (side === "long" && tp <= entry) {
+        out.innerHTML = `<div class="error">For LONG: TP must be > Entry</div>`;
+        return;
+    }
+    if (side === "short" && tp >= entry) {
+        out.innerHTML = `<div class="error">For SHORT: TP must be < Entry</div>`;
+        return;
+    }
 
-if (sl) {
-    if (side === "long" && sl >= entry) {
-        out.innerHTML = `<div class="error">For LONG: SL must be < Entry</div>`;
-        return;
+    // sl check
+    if (sl) {
+        if (side === "long" && sl >= entry) {
+            out.innerHTML = `<div class="error">For LONG: SL must be < Entry</div>`;
+            return;
+        }
+        if (side === "short" && sl <= entry) {
+            out.innerHTML = `<div class="error">For SHORT: SL must be > Entry</div>`;
+            return;
+        }
     }
-    if (side === "short" && sl <= entry) {
-        out.innerHTML = `<div class="error">For SHORT: SL must be > Entry</div>`;
-        return;
-    }
-}
-    // Position size: (margin * lev) / entry
+
+    // size
     const size = (margin * lev) / entry;
 
-    // Profit per unit
+    // profit
     let profitPer = side === "long" ? (tp - entry) : (entry - tp);
     const grossProfit = profitPer * size;
 
@@ -179,16 +180,14 @@ if (sl) {
     const net = grossProfit - totalFees;
     const roe = (net / margin) * 100;
 
-    // --- Liquidation (isolated, mmr = 0.5%) ---
-const mmr = 0.005; 
-let liq;
+    // liquidation
+    const mmr = 0.005;
+    const liq =
+      side === "long"
+        ? entry * (1 - mmr * lev)
+        : entry * (1 + mmr * lev);
 
-if (side === "long") {
-    liq = entry * (1 - mmr * lev);
-} else {
-    liq = entry * (1 + mmr * lev);
-}
-    // SL
+    // SL block
     let slBlock = "";
 
     if (sl) {
@@ -200,7 +199,6 @@ if (side === "long") {
             const totalFeesSL = (notionalEntry + notionalSL) * feeRate;
             const netLoss = grossLoss + totalFeesSL;
             const riskPct = (netLoss / margin) * 100;
-            const rr = netLoss > 0 ? net / netLoss : null;
 
             slBlock = `
                 <div class="res-item">
@@ -208,15 +206,15 @@ if (side === "long") {
                   <div class="res-content">
                     <span class="res-label">SL Risk</span>
                     <span class="res-value red">-${netLoss.toFixed(2)}$ (${riskPct.toFixed(2)}%)</span>
-                    <span class="res-label">R:R = ${rr ? rr.toFixed(2) : "—"}</span>
                   </div>
-                </div>
-                   `;
+                </div>`;
         }
     }
 
+    // render
     out.innerHTML = `
       <div class="result-grid">
+
         <div class="res-item">
           <div class="res-icon">◎</div>
           <div class="res-content">
@@ -253,9 +251,7 @@ if (side === "long") {
           <div class="res-icon">P</div>
           <div class="res-content">
             <span class="res-label">Net profit</span>
-            <span class="res-value ${net >= 0 ? "green" : "red"}">
-              ${net.toFixed(2)}$
-            </span>
+            <span class="res-value ${net >= 0 ? "green" : "red"}">${net.toFixed(2)}$</span>
           </div>
         </div>
 
@@ -263,35 +259,36 @@ if (side === "long") {
           <div class="res-icon">%</div>
           <div class="res-content">
             <span class="res-label">ROE</span>
-            <span class="res-value ${roe >= 0 ? "green" : "red"}">
-              ${roe.toFixed(2)}%
-            </span>
+            <span class="res-value ${roe >= 0 ? "green" : "red"}">${roe.toFixed(2)}%</span>
           </div>
         </div>
+
         <div class="res-item">
-  <div class="res-icon">L</div>
-  <div class="res-content">
-    <span class="res-label">Liquidation</span>
-    <span class="res-value red">${liq.toFixed(2)}</span>
-  </div>
-</div>
+          <div class="res-icon">L</div>
+          <div class="res-content">
+            <span class="res-label">Liquidation</span>
+            <span class="res-value red">${liq.toFixed(2)}</span>
+          </div>
+        </div>
 
         ${slBlock}
+
       </div>
     `;
 
     drawPerpChart(entry, tp, sl);
 }
 
-document.getElementById("btn-calc-perp").addEventListener("click", calcPerp);
+document.getElementById("btn-calc-perp")
+  .addEventListener("click", calcPerp);
 
 
 // =========================
-//  SVG POSITION CHART
+//  SVG CHART
 // =========================
 function drawPerpChart(entry, tp, sl) {
     const box = document.getElementById("perp-chart");
-    if (!box || !entry || !tp) return;
+    if (!box) return;
 
     box.innerHTML = "";
 
@@ -306,7 +303,7 @@ function drawPerpChart(entry, tp, sl) {
     const maxP = Math.max(...values);
     const span = maxP - minP || 1;
 
-    const x = price => 30 + ((price - minP) / span) * 300;
+    const x = (p) => 30 + ((p - minP) / span) * 300;
 
     // bg
     const bg = document.createElementNS(svgNS, "rect");
@@ -316,7 +313,7 @@ function drawPerpChart(entry, tp, sl) {
     bg.setAttribute("rx", "12");
     svg.appendChild(bg);
 
-    // base
+    // baseline
     const base = document.createElementNS(svgNS, "line");
     base.setAttribute("x1", "25");
     base.setAttribute("x2", "335");
@@ -327,35 +324,35 @@ function drawPerpChart(entry, tp, sl) {
     svg.appendChild(base);
 
     // zones
-    const greenRect = document.createElementNS(svgNS, "rect");
-    greenRect.setAttribute("x", Math.min(x(entry), x(tp)));
-    greenRect.setAttribute("y", "55");
-    greenRect.setAttribute("width", Math.abs(x(tp) - x(entry)));
-    greenRect.setAttribute("height", "20");
-    greenRect.setAttribute("fill", "rgba(34,197,94,0.20)");
-    svg.appendChild(greenRect);
+    const green = document.createElementNS(svgNS, "rect");
+    green.setAttribute("x", Math.min(x(entry), x(tp)));
+    green.setAttribute("y", "55");
+    green.setAttribute("width", Math.abs(x(tp) - x(entry)));
+    green.setAttribute("height", "20");
+    green.setAttribute("fill", "rgba(34,197,94,0.20)");
+    svg.appendChild(green);
 
     if (sl) {
-        const redRect = document.createElementNS(svgNS, "rect");
-        redRect.setAttribute("x", Math.min(x(sl), x(entry)));
-        redRect.setAttribute("y", "55");
-        redRect.setAttribute("width", Math.abs(x(entry) - x(sl)));
-        redRect.setAttribute("height", "20");
-        redRect.setAttribute("fill", "rgba(239,68,68,0.20)");
-        svg.appendChild(redRect);
+        const red = document.createElementNS(svgNS, "rect");
+        red.setAttribute("x", Math.min(x(sl), x(entry)));
+        red.setAttribute("y", "55");
+        red.setAttribute("width", Math.abs(x(entry) - x(sl)));
+        red.setAttribute("height", "20");
+        red.setAttribute("fill", "rgba(239,68,68,0.20)");
+        svg.appendChild(red);
     }
 
-    function mark(price, color, label) {
-        const px = x(price);
+    function mark(p, color, textLabel) {
+        const px = x(p);
 
-        const line = document.createElementNS(svgNS, "line");
-        line.setAttribute("x1", px);
-        line.setAttribute("x2", px);
-        line.setAttribute("y1", 40);
-        line.setAttribute("y2", 75);
-        line.setAttribute("stroke", color);
-        line.setAttribute("stroke-width", "2.4");
-        svg.appendChild(line);
+        const ln = document.createElementNS(svgNS, "line");
+        ln.setAttribute("x1", px);
+        ln.setAttribute("x2", px);
+        ln.setAttribute("y1", 40);
+        ln.setAttribute("y2", 75);
+        ln.setAttribute("stroke", color);
+        ln.setAttribute("stroke-width", "2.4");
+        svg.appendChild(ln);
 
         const dot = document.createElementNS(svgNS, "circle");
         dot.setAttribute("cx", px);
@@ -364,14 +361,14 @@ function drawPerpChart(entry, tp, sl) {
         dot.setAttribute("fill", color);
         svg.appendChild(dot);
 
-        const text = document.createElementNS(svgNS, "text");
-        text.setAttribute("x", px);
-        text.setAttribute("y", label === "Entry" ? 18 : 24);
-        text.setAttribute("fill", color);
-        text.setAttribute("font-size", "11");
-        text.setAttribute("text-anchor", "middle");
-        text.textContent = `${label} ${price}`;
-        svg.appendChild(text);
+        const t = document.createElementNS(svgNS, "text");
+        t.setAttribute("x", px);
+        t.setAttribute("y", textLabel === "Entry" ? 18 : 24);
+        t.setAttribute("fill", color);
+        t.setAttribute("font-size", "11");
+        t.setAttribute("text-anchor", "middle");
+        t.textContent = `${textLabel} ${p}`;
+        svg.appendChild(t);
     }
 
     mark(entry, "#4bb8ff", "Entry");
@@ -383,12 +380,16 @@ function drawPerpChart(entry, tp, sl) {
 
 
 // =========================
-// LOCAL STORAGE (save form)
+// LOCAL STORAGE
 // =========================
-
 const PERP_FIELDS = [
-  "symbol", "perp_margin", "perp_entry",
-  "perp_tp", "perp_sl", "perp_leverage", "perp_fee"
+  "symbol",
+  "perp_margin",
+  "perp_entry",
+  "perp_tp",
+  "perp_sl",
+  "perp_leverage",
+  "perp_fee"
 ];
 
 function saveField(id) {
@@ -396,34 +397,33 @@ function saveField(id) {
   if (el) localStorage.setItem("perp_" + id, el.value);
 }
 
-PERP_FIELDS.forEach(id => {
+PERP_FIELDS.forEach((id) => {
   const el = document.getElementById(id);
   if (el) el.addEventListener("input", () => saveField(id));
 });
 
 (function loadSaved() {
-  PERP_FIELDS.forEach(id => {
+  PERP_FIELDS.forEach((id) => {
     const v = localStorage.getItem("perp_" + id);
-    if (v !== null) {
-      const el = document.getElementById(id);
-      if (el) el.value = v;
-    }
+    const el = document.getElementById(id);
+    if (el && v !== null) el.value = v;
   });
 })();
 
+
+// =========================
+// DEFAULT SYMBOL + AUTO PRICE
+// =========================
 document.addEventListener("DOMContentLoaded", () => {
     const DEFAULT_SYMBOL = "BTCUSDT";
 
-    // 1. Дефолт монеты если поле пустое
     if (symbolEl && !symbolEl.value.trim()) {
         symbolEl.value = DEFAULT_SYMBOL;
         localStorage.setItem("perp_symbol", DEFAULT_SYMBOL);
     }
 
-    // 2. Обновить иконку
-    updateSymbolIcon(symbolEl.value);
+    updateSymbolIcon(symbolEl.value.trim().toUpperCase());
 
-    // 3. Загрузить цену
     if (typeof loadLivePrice === "function") {
         loadLivePrice();
     }
