@@ -1,4 +1,4 @@
-// DOM READY v=12 (simple %, реинвест каждые N месяцев)
+// DOM READY v=13 (simple %, реинвест каждые N месяцев + 2 линии на графике)
 document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   // ONLINE BADGE
@@ -62,64 +62,90 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // --- сценарий 1: С РЕИНВЕСТОМ (твоя логика) ---
     // principal — тело депозита, которое зарабатывает % каждый месяц
-    // pot       — накопленная прибыль с последнего реинвеста (НЕ зарабатывает %)
+    // pot       — накопленная прибыль с последнего реинвеста (не зарабатывает %)
     let principal = start;
-    let pot = 0; // "кувшин" прибыли
-    let totalInvested = start; // свои деньги (без начисленных %)
+    let pot = 0;
+
+    // --- сценарий 2: БЕЗ РЕИНВЕСТА прибыли (только процент от principal), для сравнения ---
+    let principalNo = start;
+    let potNo = 0;
+
+    let totalInvested = start;
+    let totalInvestedNo = start;
 
     let totalProfit = 0;
+    let totalProfitNo = 0;
+
     const logs = [];
 
     for (let m = 1; m <= months; m++) {
-      // 1) прибыль месяца: всегда от текущего principal
+      // --- WITH REINVEST (основной вариант) ---
       const profit = principal * pct;
       pot += profit;
       totalProfit += profit;
 
-      // баланс перед реинвестом (то, что у тебя "сколько накопится")
       let balance = principal + pot;
+      let reinvestEvent = false;
 
-      // 2) реинвест каждые N месяцев:
-      //    - добавляем накопленный pot к principal
-      //    - по желанию добавляем ещё внешний взнос reinvExtra
       if (reinvEvery > 0 && m % reinvEvery === 0) {
-        principal += pot;   // реинвест прибыли
-        pot = 0;            // обнуляем кувшин
+        // реинвестируем накопленную прибыль
+        if (pot !== 0) {
+          principal += pot;
+          pot = 0;
+          reinvestEvent = true;
+        }
 
+        // доп. взнос (если задан)
         if (reinvExtra > 0) {
           principal += reinvExtra;
           totalInvested += reinvExtra;
         }
 
-        balance = principal; // после реинвеста баланс = новое тело
+        balance = principal + pot;
+      }
+
+      // --- NO REINVEST (базовая линия для сравнения) ---
+      const profitNo = principalNo * pct;
+      potNo += profitNo;
+      totalProfitNo += profitNo;
+
+      let balanceNo = principalNo + potNo;
+      // тут доп. взносы есть, но прибыль НИКОГДА не уходит в тело
+      if (reinvEvery > 0 && reinvExtra > 0 && m % reinvEvery === 0) {
+        principalNo += reinvExtra;
+        totalInvestedNo += reinvExtra;
+        balanceNo = principalNo + potNo;
       }
 
       logs.push({
         m,
-        balance,
-        profit,      // прибыль в этот месяц
-        principal,   // текущее тело после возможного реинвеста
-        pot          // прибыль в кувшине после месяца/реинвеста
+        balance,    // линия "с реинвестом"
+        balanceNo,  // линия "без реинвеста"
+        profit,
+        profitNo,
+        reinvestEvent
       });
     }
 
     const finalBalance = principal + pot;
-    totalProfit = finalBalance - totalInvested; // на всякий случай пересчёт
+    const finalBalanceNo = principalNo + potNo;
+
+    // пересчёт профитов от фактических балансов
+    totalProfit = finalBalance - totalInvested;
+    totalProfitNo = finalBalanceNo - totalInvestedNo;
 
     const last = logs[logs.length - 1];
-    const monthN =
-      reinvEvery > 0
-        ? Math.min(reinvEvery, months)
-        : Math.min(6, months); // "контрольный" месяц
-    const pointN = logs.find((x) => x.m === monthN) || logs[0];
 
-    const profitPerMonth = last.profit; // сколько капает в последний месяц
+    const profitPerMonth = last.profit; // прибыль в последний месяц (с реинвестом)
     const profitForPeriod = totalProfit;
     const yieldPeriodPct =
       totalInvested > 0 ? (profitForPeriod / totalInvested) * 100 : 0;
     const years = months / 12;
     const yieldYearPct = years > 0 ? yieldPeriodPct / years : 0;
+
+    const extraProfitVsNo = totalProfit - totalProfitNo;
 
     const reinvestText =
       reinvEvery > 0
@@ -136,8 +162,9 @@ document.addEventListener("DOMContentLoaded", () => {
       yieldPeriodPct,
       yieldYearPct,
       reinvestText,
-      monthN,
-      balanceN: pointN.balance
+      finalBalanceNo,
+      totalProfitNo,
+      extraProfitVsNo
     });
 
     drawChart(logs);
@@ -172,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="res-item">
           <div class="res-icon">F</div>
           <div class="res-content">
-            <span class="res-label">Final Balance</span>
+            <span class="res-label">Final Balance (with reinvest)</span>
             <span class="res-value">${d.finalBalance.toFixed(2)}$</span>
           </div>
         </div>
@@ -202,14 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div class="res-item">
-          <div class="res-icon">${d.monthN}</div>
-          <div class="res-content">
-            <span class="res-label">At month ${d.monthN}</span>
-            <span class="res-value">${d.balanceN.toFixed(2)}$</span>
-          </div>
-        </div>
-
-        <div class="res-item">
           <div class="res-icon">%</div>
           <div class="res-content">
             <span class="res-label">Yield for period</span>
@@ -225,56 +244,112 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
+        <div class="res-item">
+          <div class="res-icon">W</div>
+          <div class="res-content">
+            <span class="res-label">Final (no reinvest)</span>
+            <span class="res-value">${d.finalBalanceNo.toFixed(2)}$</span>
+          </div>
+        </div>
+
+        <div class="res-item">
+          <div class="res-icon">Δ</div>
+          <div class="res-content">
+            <span class="res-label">Extra profit vs no reinvest</span>
+            <span class="res-value green">${d.extraProfitVsNo.toFixed(2)}$</span>
+          </div>
+        </div>
+
       </div>
     `;
   }
 
   // -----------------------
-  // SVG CHART (улучшенный)
+  // SVG CHART: 2 линии + реинвест-метки
   // -----------------------
   function drawChart(logs) {
     const box = G("inv-chart");
     if (!box) return;
     box.innerHTML = "";
-
     if (!logs.length) return;
 
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("viewBox", "0 0 420 200");
+    svg.setAttribute("viewBox", "0 0 440 220");
     svg.style.width = "100%";
 
-    const values = logs.map((r) => r.balance);
-    const minVal = Math.min(...values);
-    const maxVal = Math.max(...values);
+    const balancesWith = logs.map((r) => r.balance);
+    const balancesNo = logs.map((r) => r.balanceNo);
+    const allVals = balancesWith.concat(balancesNo);
+
+    const minVal = Math.min(...allVals);
+    const maxVal = Math.max(...allVals);
     const span = maxVal - minVal || 1;
 
     const left = 40;
-    const right = 400;
+    const right = 410;
     const top = 20;
-    const bottom = 170;
+    const bottom = 180;
 
     const x = (i) =>
       left + (i / Math.max(1, logs.length - 1)) * (right - left);
     const y = (v) => bottom - ((v - minVal) / span) * (bottom - top);
 
-    // линия
-    let d = "";
+    // --- линия "с реинвестом" ---
+    let dWith = "";
     logs.forEach((r, i) => {
       const px = x(i);
       const py = y(r.balance);
-      d += `${i === 0 ? "M" : "L"}${px},${py} `;
+      dWith += `${i === 0 ? "M" : "L"}${px},${py} `;
+    });
+    const pathWith = document.createElementNS(svgNS, "path");
+    pathWith.setAttribute("d", dWith);
+    pathWith.setAttribute("stroke", "#4bb8ff");
+    pathWith.setAttribute("stroke-width", "2");
+    pathWith.setAttribute("fill", "none");
+    svg.appendChild(pathWith);
+
+    // --- линия "без реинвеста" ---
+    let dNo = "";
+    logs.forEach((r, i) => {
+      const px = x(i);
+      const py = y(r.balanceNo);
+      dNo += `${i === 0 ? "M" : "L"}${px},${py} `;
+    });
+    const pathNo = document.createElementNS(svgNS, "path");
+    pathNo.setAttribute("d", dNo);
+    pathNo.setAttribute("stroke", "#ff7f50");
+    pathNo.setAttribute("stroke-width", "2");
+    pathNo.setAttribute("fill", "none");
+    pathNo.setAttribute("stroke-dasharray", "4 2");
+    svg.appendChild(pathNo);
+
+    // --- отметки реинвест-эвентов (если были) ---
+    logs.forEach((r, i) => {
+      if (!r.reinvestEvent) return;
+      const vx = x(i);
+      const line = document.createElementNS(svgNS, "line");
+      line.setAttribute("x1", vx);
+      line.setAttribute("y1", top);
+      line.setAttribute("x2", vx);
+      line.setAttribute("y2", bottom);
+      line.setAttribute("stroke", "#888");
+      line.setAttribute("stroke-width", "1");
+      line.setAttribute("stroke-dasharray", "3 3");
+      svg.appendChild(line);
+
+      const label = document.createElementNS(svgNS, "text");
+      label.setAttribute("x", vx);
+      label.setAttribute("y", top + 10);
+      label.setAttribute("fill", "#aaa");
+      label.setAttribute("font-size", "9");
+      label.setAttribute("text-anchor", "middle");
+      label.textContent = `R${r.m}`;
+      svg.appendChild(label);
     });
 
-    const path = document.createElementNS(svgNS, "path");
-    path.setAttribute("d", d);
-    path.setAttribute("stroke", "#4bb8ff");
-    path.setAttribute("stroke-width", "2");
-    path.setAttribute("fill", "none");
-    svg.appendChild(path);
-
-    // точки: начало, середина, конец
-    const markIdx = [0, Math.floor((logs.length - 1) / 2), logs.length - 1];
+    // --- точки: начало и конец (для сценария с реинвестом) ---
+    const markIdx = [0, logs.length - 1];
     markIdx.forEach((idx) => {
       const r = logs[idx];
       const cx = x(idx);
@@ -297,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
       svg.appendChild(label);
     });
 
-    // подписи по оси Y (min / max)
+    // --- подписи по оси Y (min / max) ---
     const minText = document.createElementNS(svgNS, "text");
     minText.setAttribute("x", 5);
     minText.setAttribute("y", bottom);
@@ -313,6 +388,43 @@ document.addEventListener("DOMContentLoaded", () => {
     maxText.setAttribute("font-size", "10");
     maxText.textContent = maxVal.toFixed(0);
     svg.appendChild(maxText);
+
+    // --- легенда ---
+    const legendY = 18;
+
+    const rect1 = document.createElementNS(svgNS, "rect");
+    rect1.setAttribute("x", 250);
+    rect1.setAttribute("y", legendY);
+    rect1.setAttribute("width", 10);
+    rect1.setAttribute("height", 10);
+    rect1.setAttribute("fill", "#4bb8ff");
+    svg.appendChild(rect1);
+
+    const txt1 = document.createElementNS(svgNS, "text");
+    txt1.setAttribute("x", 266);
+    txt1.setAttribute("y", legendY + 9);
+    txt1.setAttribute("fill", "#ccc");
+    txt1.setAttribute("font-size", "10");
+    txt1.textContent = "With reinvest";
+    svg.appendChild(txt1);
+
+    const rect2 = document.createElementNS(svgNS, "rect");
+    rect2.setAttribute("x", 250);
+    rect2.setAttribute("y", legendY + 16);
+    rect2.setAttribute("width", 10);
+    rect2.setAttribute("height", 10);
+    rect2.setAttribute("fill", "none");
+    rect2.setAttribute("stroke", "#ff7f50");
+    rect2.setAttribute("stroke-width", "2");
+    svg.appendChild(rect2);
+
+    const txt2 = document.createElementNS(svgNS, "text");
+    txt2.setAttribute("x", 266);
+    txt2.setAttribute("y", legendY + 25);
+    txt2.setAttribute("fill", "#ccc");
+    txt2.setAttribute("font-size", "10");
+    txt2.textContent = "No reinvest";
+    svg.appendChild(txt2);
 
     box.appendChild(svg);
   }
