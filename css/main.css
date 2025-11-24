@@ -174,18 +174,21 @@ body::before {
 }
 
 /* ===========================
-   FORM / INPUTS (Updated)
+/* ===========================
+          FORM (CLEAN)
 =========================== */
 
 .form-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;   /* FIX: больше нет отталкивания вправо */
+  justify-content: flex-start;
   gap: 14px;
   margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Лейбл фикс ширины, одинаково на всех страницах */
+/* Фиксированная ширина лейблов */
 .form-row label {
   flex: 0 0 150px;
   font-size: 14px;
@@ -193,10 +196,9 @@ body::before {
   white-space: nowrap;
 }
 
-/* Единый стиль для инпутов всех типов */
+/* Универсальные inputs/select */
 .form-row input,
-.form-row select,
-.form-row .input-wrap {
+.form-row select {
   flex: 1;
   width: 100%;
   padding: 9px;
@@ -214,11 +216,28 @@ body::before {
   border-color: var(--accent);
 }
 
+/* ВАЖНО: input-wrap НЕ input! */
+.form-row .input-wrap {
+  flex: 1;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  box-sizing: border-box;
+}
+
+/* Мобильная адаптация */
 @media (max-width: 420px) {
   .form-row {
     flex-direction: column;
     align-items: stretch;
   }
+
+  .form-row label {
+    width: 100%;
+  }
+}
 
   .form-row input,
   .form-row select {
