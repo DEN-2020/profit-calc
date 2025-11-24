@@ -417,14 +417,15 @@ PERP_FIELDS.forEach((id) => {
 document.addEventListener("DOMContentLoaded", () => {
     const DEFAULT_SYMBOL = "BTCUSDT";
 
+    // ensure default symbol AFTER DOM exists
     if (symbolEl && !symbolEl.value.trim()) {
         symbolEl.value = DEFAULT_SYMBOL;
         localStorage.setItem("perp_symbol", DEFAULT_SYMBOL);
     }
 
+    // load icon safely (image now exists)
     updateSymbolIcon(symbolEl.value.trim().toUpperCase());
 
-    if (typeof loadLivePrice === "function") {
-        loadLivePrice();
-    }
+    // now load price
+    loadLivePrice();
 });
