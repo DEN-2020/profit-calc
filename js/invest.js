@@ -21,9 +21,10 @@ window.addEventListener("offline", updateOnlineStatus);
 document.addEventListener("DOMContentLoaded", updateOnlineStatus);
 
 // =======================
-// SHORT HELPERS
+// HELPERS
 // =======================
 const G = (id) => document.getElementById(id);
+
 const num = (id) => {
   const el = G(id);
   if (!el) return 0;
@@ -31,32 +32,56 @@ const num = (id) => {
   return Number.isFinite(v) ? v : 0;
 };
 
+// повесим обработчик с try/catch, чтобы видеть ошибки
 const btn = G("inv-calc-btn");
 if (btn) {
-  btn.addEventListener("click", calcInvest);
+  btn.addEventListener("click", () => {
+    try {
+      calcInvest();
+    } catch (e) {
+      console.error("Investment calc error:", e);
+      const box = G("inv-result");
+      if (box) {
+        box.innerHTML = `<div class="error">JS error: ${e.message}</div>`;
+      }
+    }
+  });
+} else {
+  console.error("Button #inv-calc-btn not found");
 }
 
 // =======================
 // MAIN CALC
 // =======================
 function calcInvest() {
-  const start = num("inv_amount");          // начальный депозит
-  const pctMonth = num("inv_pct") / 100;    // месячный %
-  const months = num("inv_months");         // срок в месяцах
+  const start = num("inv_amount");       // начальный депозит
+  const pctMonth = num("inv_pct") / 100; // месячный %
+  const months = num("inv_months");      // срок в месяцах
 
-  const reinvEvery = parseInt(G("inv_reinvest_period").value, 10) || 0; // каждые N месяцев
-  const reinvValue = num("inv_reinvest_value");                         // сумма довноса
+  const selReinv = G("inv_reinvest_period");
+  if (!selReinv) {
+    throw new Error("Select inv_reinvest_period not found");
+  }
+  const reinvEvery = parseInt(selReinv.value, 10) || 0; // каждые N месяцев
+  const reinvValue = num("inv_reinvest_value");         // сумма довноса
+
+  const resultBox = G("inv-result");
+  const chartBox = G("inv-chart");
+
+  if (!resultBox || !chartBox) {
+    throw new Error("Result or chart container not found");
+  }
 
   if (!start || !pctMonth || !months) {
-    G("inv-result").innerHTML =
+    resultBox.innerHTML =
       "<div class='error'>Fill amount, monthly % and period.</div>";
-    G("inv-chart").innerHTML = "";
+    chartBox.innerHTML = "";
     return;
   }
 
   // --- APR: простые проценты ---
-  // principalAPR — тело депозита, на него считается % каждый месяц
-  // profitAPR    — накопленная прибыль, которую можно вывести
+  // principalAPR — тело депозита (initial + все довносы),
+  // profitAPR    — накопленная прибыль.
   let principalAPR = start;
   let profitAPR = 0;
 
@@ -66,17 +91,18 @@ function calcInvest() {
   let reinvEvents = 0; // сколько раз добавляли деньги
   const logs = [];
 
+  console.log("=== INVEST CALC START ===", {
+    start,
+    pctMonth,
+    months,
+    reinvEvery,
+    reinvValue
+  });
+
   for (let m = 1; m <= months; m++) {
     // ===== APR (simple) =====
     const monthProfitAPR = principalAPR * pctMonth;
     profitAPR += monthProfitAPR;
-
-    // довнос (внешние деньги) каждые N месяцев
-    if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
-      principalAPR += reinvValue; // увеличиваем тело депозита
-      balAPY += reinvValue;       // и для APY тоже
-      reinvEvents += 1;
-    }
 
     const totalAPR = principalAPR + profitAPR;
 
@@ -84,10 +110,18 @@ function calcInvest() {
     const monthProfitAPY = balAPY * pctMonth;
     balAPY += monthProfitAPY;
 
+    // ===== внешние довносы (в конце месяца) =====
+    if (reinvEvery > 0 && reinvValue > 0 && m % reinvEvery === 0) {
+      principalAPR += reinvValue;
+      balAPY += reinvValue;
+      reinvEvents += 1;
+      console.log(`Top-up at month ${m}: +${reinvValue}`);
+    }
+
     logs.push({
       m,
       apr: totalAPR,
-      apy: balAPY,
+      apy: balAPY
     });
   }
 
@@ -98,10 +132,18 @@ function calcInvest() {
   const profitAPR = finalAPR - totalInvested;
   const profitAPY = finalAPY - totalInvested;
 
-  const roiAPR =
-    totalInvested > 0 ? (profitAPR / totalInvested) * 100 : 0;
-  const roiAPY =
-    totalInvested > 0 ? (profitAPY / totalInvested) * 100 : 0;
+  const roiAPR = totalInvested > 0 ? (profitAPR / totalInvested) * 100 : 0;
+  const roiAPY = totalInvested > 0 ? (profitAPY / totalInvested) * 100 : 0;
+
+  console.log("=== INVEST CALC DONE ===", {
+    totalInvested,
+    finalAPR,
+    finalAPY,
+    profitAPR,
+    profitAPY,
+    roiAPR,
+    roiAPY
+  });
 
   renderResult({
     start,
@@ -112,7 +154,7 @@ function calcInvest() {
     profitAPY,
     roiAPR,
     roiAPY,
-    logs,
+    logs
   });
   drawChart(logs);
 }
@@ -130,14 +172,17 @@ function renderResult(data) {
     profitAPY,
     roiAPR,
     roiAPY,
-    logs,
+    logs
   } = data;
 
   const months = logs.length;
-  const midMonth = Math.min(6, months); // показываем месяц 6, если срок >=6
+  const midMonth = Math.min(6, months);
   const mid = logs.find((r) => r.m === midMonth) || logs[0];
 
-  G("inv-result").innerHTML = `
+  const resultBox = G("inv-result");
+  if (!resultBox) return;
+
+  resultBox.innerHTML = `
     <div class="result-grid">
 
       <div class="res-item">
@@ -221,6 +266,7 @@ function renderResult(data) {
 // =======================
 function drawChart(logs) {
   const box = G("inv-chart");
+  if (!box) return;
   box.innerHTML = "";
 
   if (!logs.length) return;
