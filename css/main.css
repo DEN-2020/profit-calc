@@ -395,3 +395,134 @@ button.secondary {
     font-size: 24px;
   }
 }
+
+/* -----------------------------
+      HOME PAGE BACKGROUND
+------------------------------*/
+.home-bg {
+  position: relative;
+  padding-top: 20px;
+}
+
+.home-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(0,140,255,0.25), transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(120,0,255,0.25), transparent 60%);
+  filter: blur(60px);
+  z-index: -2;
+}
+
+.home-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+  z-index: -1;
+}
+
+/* -----------------------------
+      HOME CARD
+------------------------------*/
+.home-card {
+  max-width: 800px;
+  margin: auto;
+  padding: 28px;
+  backdrop-filter: blur(12px);
+  background: rgba(20,20,20,0.65);
+}
+
+.home-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.wave {
+  animation: waveAnim 1.8s infinite;
+}
+
+@keyframes waveAnim {
+  0% { transform: rotate(0deg); }
+  15% { transform: rotate(20deg); }
+  30% { transform: rotate(0deg); }
+  45% { transform: rotate(20deg); }
+  60% { transform: rotate(0deg); }
+}
+
+/* -----------------------------
+      SUBTITLE
+------------------------------*/
+.home-subtitle {
+  font-size: 15px;
+  opacity: 0.8;
+  margin-bottom: 22px;
+}
+
+/* -----------------------------
+      BUTTON-CARDS GRID
+------------------------------*/
+.home-grid {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 600px) {
+  .home-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.home-box {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(35,35,35,0.8);
+  border: 1px solid rgba(70,70,70,0.4);
+  text-decoration: none;
+  transition: 0.25s ease;
+}
+
+.home-box:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  background: rgba(40,40,40,0.9);
+}
+
+/* ICON */
+.hb-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* TITLE */
+.hb-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* DESC */
+.hb-desc {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* FOOTER */
+.home-footer-note {
+  margin-top: 25px;
+  opacity: 0.5;
+  font-size: 13px;
+  text-align: center;
+}
