@@ -313,3 +313,51 @@ button.secondary {
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   }
 }
+/* Home page grid */
+.home-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.home-item {
+  text-decoration: none;
+  background: var(--card-bg-2);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.15s, border 0.15s;
+}
+
+.home-item:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--accent);
+}
+
+.hi-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #000;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.hi-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hi-desc {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
