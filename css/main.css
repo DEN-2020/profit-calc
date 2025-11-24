@@ -240,12 +240,6 @@ button {
          RESULT GRID
 =========================== */
 
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-}
-
 .res-item {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -266,6 +260,18 @@ button {
   align-items: center;
   justify-content: center;
   font-weight: 600;
+}
+
+.result-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+@media (max-width: 480px) {
+  .result-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
 }
 
 /* ===========================
