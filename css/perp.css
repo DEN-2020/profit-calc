@@ -1,45 +1,68 @@
 /* =========================================
-   PERP-SPECIFIC UI STYLES
-   Работает поверх main.css
+   PERP-SPECIFIC UI STYLES (поверх main.css)
 ========================================= */
 
-/* =========================================
-   FIXED — SYMBOL INPUT (ровно как в spot)
-========================================= */
+/* =======================================================
+   1) NORMAL FORM-ROW LAYOUT FOR PERP PAGE (как Spot/Invest)
+   ======================================================= */
 
-.input-wrap {
-  position: relative;
-  flex: 1.2;         /* РОВНО как у обычного input */
-  min-width: 0;
+#perp-form .form-row {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
 }
 
-.icon-input {
-  width: 100%;
-  position: relative;
+/* фикс ширины лейбла */
+#perp-form .form-row label {
+  flex: 0 0 140px;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
-.icon-input input {
+/* input/select справа */
+#perp-form .form-row input,
+#perp-form .form-row select,
+#perp-form .form-row .input-wrap {
+  flex: 1;
   width: 100%;
+  max-width: 260px;
+  padding: 9px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   box-sizing: border-box;
-  padding-left: 42px;      /* место под круг */
-  padding-right: 8px;
 }
 
-/* Кружок-иконка */
-.symbol-icon-img {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  position: absolute;
-  left: 12px;              /* выравниваем как в spot */
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
+/* icon-input adjustments */
+#perp-form .icon-input {
+  padding: 0 !important;
+}
+#perp-form .icon-input input {
+  padding-left: 42px;
 }
 
-/* -----------------------------------------
-   AUTOCOMPLETE LIST
-------------------------------------------*/
+/* MOBILE (но не превращаем в столбец!) */
+@media (max-width: 420px) {
+  #perp-form .form-row {
+    flex-direction: row !important;
+  }
+  #perp-form .form-row label {
+    flex: 0 0 110px;
+  }
+  #perp-form .form-row input,
+  #perp-form .form-row select,
+  #perp-form .form-row .input-wrap {
+    max-width: 100%;
+  }
+}
+
+/* =======================================================
+   2) AUTOCOMPLETE
+   ======================================================= */
 
 .autocomplete-list {
   position: absolute;
@@ -59,173 +82,56 @@
   padding: 8px 10px;
   cursor: pointer;
   border-bottom: 1px solid #222;
-  transition: background 0.15s;
 }
-
 .autocomplete-item:hover {
   background: rgba(255,255,255,0.06);
 }
 
 /* =======================================================
-   FIX: NORMAL FORM-ROW LAYOUT FOR PERP PAGE
+   3) LIVE PRICE BOX
    ======================================================= */
-
-/* выравнивание как в spot/invest */
-#perp-form .form-row {
-  display: flex;
-  flex-direction: row !important;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 14px;
-  margin-bottom: 10px;
-}
-
-/* фикс ширины лейбла */
-#perp-form .form-row label {
-  flex: 0 0 140px;
-  white-space: nowrap;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-/* input, select и input-wrap — всегда справа */
-#perp-form .form-row input,
-#perp-form .form-row select,
-#perp-form .form-row .input-wrap {
-  flex: 1;
-  width: 100%;
-  max-width: 280px;
-  padding: 9px;
-  margin: 0;
-}
-
-/* убираем лишние отступы у icon-input */
-#perp-form .icon-input {
-  padding: 0 !important;
-}
-#perp-form .icon-input input {
-  padding-left: 42px;
-}
-
-/* MOBILE — но без превращения в столбец (как ты хотел) */
-@media (max-width: 420px) {
-  #perp-form .form-row {
-    flex-direction: row !important;
-  }
-  #perp-form .form-row label {
-    flex: 0 0 110px;
-  }
-  #perp-form .form-row input,
-  #perp-form .form-row select,
-  #perp-form .form-row .input-wrap {
-    max-width: 100%;
-  }
-}
-
-/* -----------------------------------------
-   LIVE PRICE BOX (верхний блок с ценой)
-------------------------------------------*/
 
 .live-price-box {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 18px;
-  background: #14141c;
+  background: rgba(20,20,25,0.7);
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #252735;
 }
 
-.live-price-box label {
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-#perp_live_price {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-#btn-fetch-price {
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #222;
-  color: #bbb;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-#btn-fetch-price:hover {
-  background: #333;
-}
-
-/* -----------------------------------------
-   RESULT GRID (так же, как на Spot)
-------------------------------------------*/
-
-.result-block {
-  padding: 10px;
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
+/* =======================================================
+   4) RESULT GRID
+   ======================================================= */
 
 .result-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 
+@media (max-width: 400px) {
+  .result-grid {
+    grid-template-columns: repeat(2, 1fr);  /* две колонки на мобильнике */
+  }
+}
+
 .res-item {
+  background: #15161d;
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  background: #15161d;
-  border-radius: 10px;
   min-height: 48px;
   box-shadow: 0 0 0 1px #1f2030 inset;
 }
 
-.res-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #22232f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  opacity: 0.85;
-  flex-shrink: 0;
-}
-
-.res-content {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.res-label {
-  font-size: 11px;
-  opacity: 0.6;
-}
-
-.res-value {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* цвета значений */
-.green  { color: #51ff84; }
-.red    { color: #ff5e5e; }
-.orange { color: #ffb65e; }
-
-/* -----------------------------------------
-   CHART PLACEHOLDER (если main.css вдруг не подхватит)
-------------------------------------------*/
+/* =======================================================
+   5) CHART PLACEHOLDER (страховка)
+   ======================================================= */
 
 .chart-placeholder {
   width: 100%;
@@ -237,16 +143,4 @@
   justify-content: center;
   color: var(--text-muted);
   font-size: 14px;
-}
-
-/* Мелкая подстройка под мобильники */
-@media (max-width: 480px) {
-  .res-item {
-    padding: 8px 10px;
-    min-height: 44px;
-  }
-
-  .res-value {
-    font-size: 13px;
-  }
 }
