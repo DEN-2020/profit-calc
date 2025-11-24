@@ -173,6 +173,47 @@ body::before {
   border-color: var(--accent);
 }
 
+/* ===========================
+   FORM / INPUTS (Updated)
+=========================== */
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;   /* FIX: больше нет отталкивания вправо */
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+/* Лейбл фикс ширины, одинаково на всех страницах */
+.form-row label {
+  flex: 0 0 150px;
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Единый стиль для инпутов всех типов */
+.form-row input,
+.form-row select,
+.form-row .input-wrap {
+  flex: 1;
+  width: 100%;
+  padding: 9px;
+  font-size: 15px;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 @media (max-width: 420px) {
   .form-row {
     flex-direction: column;
