@@ -52,6 +52,11 @@
   padding: 8px 10px;
 }
 
+/* FIX: убираем линию под пустым autocomplete */
+#symbol-autocomplete:empty {
+  border: none !important;
+}
+
 /* --- Live Price --- */
 .live-price-box {
   display: flex;
