@@ -2,18 +2,6 @@
    PERP — полностью совместим с main.css
 ========================================= */
 
-#perp-form .form-row {
-  flex-direction: row !important;
-  align-items: center;
-  gap: 12px;
-}
-
-#perp-form .input-wrap.icon-input {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-}
-
 /* мобильная версия — лейбл сверху */
 @media (max-width: 480px) {
   #perp-form .form-row {
@@ -31,7 +19,7 @@
 /* --- фиксация иконки + инпута --- */
 #perp-form .icon-input {
   display: flex;
-   height: 38px;
+  height: 38px;
   align-items: center;
   gap: 8px;
 }
@@ -82,7 +70,7 @@
   flex-shrink: 0;
 }
 
-/* --- результат в 2–3 колонки --- */
+/* --- результат --- */
 .result-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -95,7 +83,6 @@
   }
 }
 
-/* --- компактные карточки результата --- */
 .res-item {
   background: #15161d;
   padding: 10px 12px;
@@ -112,7 +99,7 @@
   min-height: 140px;
 }
 
-/* --- кнопка calculate строгая --- */
+/* --- calculate --- */
 #perp-form .form-actions button {
   width: auto !important;
   min-width: 160px;
