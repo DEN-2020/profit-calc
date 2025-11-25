@@ -1,6 +1,21 @@
 /* =========================================
    PERP — полностью совместим с main.css
 ========================================= */
+#perp-form .input-wrap {
+  position: relative;
+}
+
+#perp-form .input-wrap img {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#perp-form .input-wrap input {
+  padding-left: 42px !important;
+}
+
 
 /* мобильная версия — лейбл сверху */
 @media (max-width: 480px) {
