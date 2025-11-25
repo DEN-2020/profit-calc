@@ -2,6 +2,17 @@
    PERP — полностью совместим с main.css
 ========================================= */
 
+#perp-form .form-row {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+}
+
+#perp-form .input-wrap.icon-input {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
 
 /* мобильная версия — лейбл сверху */
 @media (max-width: 480px) {
