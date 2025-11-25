@@ -115,12 +115,6 @@
   min-height: 140px;
 }
 
-/* --- ВЫРАВНИВАНИЕ ЦЕНТРА НА БОЛЬШИХ ЭКРАНАХ --- */
-.app-main {
-  max-width: 900px !important;
-  margin: 0 auto !important;
-}
-
 /* --- кнопка calculate строгая --- */
 #perp-form .form-actions button {
   width: auto !important;
