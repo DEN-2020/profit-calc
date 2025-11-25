@@ -115,11 +115,11 @@
   gap: 0.5rem;
 }
 
-/* сама иконка монеты, чтобы точно была видна */
 .symbol-icon-img {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  opacity: 1;   /* ← фикс */
 }
 
 /* live price box – чтобы кнопка не растягивалась на всю ширину */
