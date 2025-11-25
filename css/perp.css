@@ -121,6 +121,13 @@
   gap: 0.5rem;
 }
 
+.icon-input img {
+  width: 26px !important;
+  height: 26px !important;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
 .symbol-icon-img {
   width: 22px;
   height: 22px;
