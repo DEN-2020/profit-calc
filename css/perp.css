@@ -31,24 +31,7 @@
   }
 }
 
-/* --- фиксация иконки + инпута --- */
-#perp-form .icon-input {
-  display: flex;
-  height: 38px;
-  align-items: center;
-  gap: 8px;
-}
 
-#perp-form .icon-input img {
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  margin-right: 4px;
-}
-
-#perp-form .icon-input input {
-  padding-left: 12px !important;
-}
 
 /* --- автокомплит --- */
 #perp-form .autocomplete-list {
