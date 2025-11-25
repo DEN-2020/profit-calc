@@ -111,8 +111,51 @@ body::before {
            MAIN
 =========================== */
 
+/* ================================
+   GLOBAL LAYOUT FIXES
+================================ */
+
+/* Центрирование контента на всех страницах */
 .app-main {
-  padding: 18px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* Кнопки — не тянуть на всю ширину */
+button {
+  width: auto;
+  padding: 0.45rem 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Жёстко запрещаем формам растягивать кнопку */
+.form-actions {
+  display: flex;
+  justify-content: center;
+}
+.form-actions button {
+  width: auto !important;
+  min-width: 160px;
+}
+
+/* Инпуты — нормальные отступы */
+.input-wrap input {
+  padding-left: 10px;
+}
+
+/* Иконки для symbol — всегда показывать */
+.symbol-icon-img {
+  display: inline-block !important;
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+/* Автокомплит поверх всего */
+.autocomplete-list {
+  z-index: 9999;
 }
 
 .card {
