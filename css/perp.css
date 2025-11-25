@@ -108,6 +108,12 @@
   padding: 1.5rem 1rem;
 }
 
+@media (min-width: 1400px) {
+  .app-main {
+    max-width: 960px;
+  }
+}
+
 /* блок с символом + иконка + инпут */
 .icon-input {
   display: flex;
