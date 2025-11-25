@@ -50,6 +50,7 @@ body::before {
   position: sticky;
   top: 0;
   backdrop-filter: blur(10px);
+   z-index:5000;
 }
 
 .logo {
@@ -162,7 +163,7 @@ button {
 
 /* Автокомплит поверх всего */
 .autocomplete-list {
-  z-index: 9999;
+  z-index: 2000;
 }
 
 .card {
