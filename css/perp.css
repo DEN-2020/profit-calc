@@ -2,21 +2,6 @@
    PERP — полностью совместим с main.css
 ========================================= */
 
-/* --- строгий контроль макета формы --- */
-#perp-form .form-row {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-#perp-form .form-row label {
-  flex: 0 0 140px;
-  white-space: nowrap;
-  font-size: 14px;
-  color: var(--text-muted);
-}
 
 /* мобильная версия — лейбл сверху */
 @media (max-width: 480px) {
