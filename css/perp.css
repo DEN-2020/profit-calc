@@ -1,17 +1,18 @@
 /* =========================================
-   PERP — полностью совместим с main.css
+   PERP — корректная работа с main.css
 ========================================= */
+
 /* Лейбл слева как на SPOT */
 #perp-form .form-row {
   display: flex !important;
   flex-direction: row !important;
-  align-items: center;
+  align-items: center !important;
   gap: 12px;
 }
 
-
+/* --- иконка ВНУТРИ input, как на SPOT --- */
 #perp-form .input-wrap {
-  position: relative;
+  position: relative !important;
 }
 
 #perp-form .input-wrap img {
@@ -19,28 +20,27 @@
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
 }
 
 #perp-form .input-wrap input {
-  padding-left: 42px !important;
+  padding-left: 42px !important;  /* место под иконку */
 }
 
-
-/* мобильная версия — лейбл сверху */
+/* мобильная версия (лейбл сверху) */
 @media (max-width: 480px) {
   #perp-form .form-row {
     flex-direction: column !important;
-    align-items: stretch;
+    align-items: stretch !important;
     gap: 6px;
   }
 
   #perp-form .form-row label {
-    flex: none;
     width: 100%;
   }
 }
-
-
 
 /* --- автокомплит --- */
 #perp-form .autocomplete-list {
@@ -55,11 +55,6 @@
   margin-top: 4px;
 }
 
-.autocomplete-item {
-  padding: 8px 10px;
-}
-
-/* FIX: убираем линию под пустым autocomplete */
 #symbol-autocomplete:empty {
   border: none !important;
 }
@@ -79,10 +74,9 @@
 .live-price-box button {
   width: auto !important;
   padding: 6px 12px !important;
-  flex-shrink: 0;
 }
 
-/* --- результат --- */
+/* --- Result --- */
 .result-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
