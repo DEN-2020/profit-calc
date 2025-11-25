@@ -100,3 +100,48 @@
 #perp-form .icon-input input {
   padding-left: 10px !important;
 }
+
+/* центрируем основной контент на больших экранах */
+.app-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* блок с символом + иконка + инпут */
+.icon-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* сама иконка монеты, чтобы точно была видна */
+.symbol-icon-img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+/* live price box – чтобы кнопка не растягивалась на всю ширину */
+.live-price-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.live-price-box button {
+  padding: 0.3rem 0.7rem;
+  width: auto;
+  flex-shrink: 0;
+}
+
+/* кнопка calculate тоже по-людски */
+.form-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.form-actions button {
+  width: auto;
+  min-width: 160px;
+}
