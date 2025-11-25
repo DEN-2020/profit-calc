@@ -1,61 +1,129 @@
 /* =========================================
-   PERP — только уникальные стили
+   PERP — полностью совместим с main.css
 ========================================= */
 
-/* ---------- LIVE PRICE BOX ---------- */
-.live-price-box {
-  background: rgba(20,20,25,0.7);
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #252735;
-  display: flex;
+/* --- строгий контроль макета формы --- */
+#perp-form .form-row {
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-/* ---------- RESULT GRID ---------- */
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+#perp-form .form-row label {
+  flex: 0 0 140px;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
-@media (max-width: 400px) {
-  .result-grid {
-    grid-template-columns: repeat(2, 1fr);
+/* мобильная версия — лейбл сверху */
+@media (max-width: 480px) {
+  #perp-form .form-row {
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  #perp-form .form-row label {
+    flex: none;
+    width: 100%;
   }
 }
 
-.res-item {
-  background: #15161d;
-  border-radius: 10px;
-  padding: 10px 12px;
+/* --- фиксация иконки + инпута --- */
+#perp-form .icon-input {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  box-shadow: 0 0 0 1px #1f2030 inset;
+  gap: 8px;
 }
 
-/* ---------- CHART PLACEHOLDER ---------- */
-.chart-placeholder {
-  width: 100%;
-  min-height: 160px;
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 14px;
+#perp-form .icon-input img {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
-/* ---------- AUTOCOMPLETE OVERRIDE ---------- */
+#perp-form .icon-input input {
+  padding-left: 12px !important;
+}
+
+/* --- автокомплит --- */
 #perp-form .autocomplete-list {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
   z-index: 9999;
   background: rgba(15,15,15,0.95);
   border: 1px solid #333;
   border-radius: 8px;
   margin-top: 4px;
+}
+
+.autocomplete-item {
+  padding: 8px 10px;
+}
+
+/* --- Live Price --- */
+.live-price-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  background: rgba(20,20,25,0.7);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #252735;
+}
+
+.live-price-box button {
+  width: auto !important;
+  padding: 6px 12px !important;
+  flex-shrink: 0;
+}
+
+/* --- результат в 2–3 колонки --- */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .result-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- компактные карточки результата --- */
+.res-item {
+  background: #15161d;
+  padding: 10px 12px;
+  border-radius: 10px;
+  min-height: 48px;
+  box-shadow: 0 0 0 1px #1f2030 inset;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- chart --- */
+.chart-placeholder {
+  min-height: 140px;
+}
+
+/* --- ВЫРАВНИВАНИЕ ЦЕНТРА НА БОЛЬШИХ ЭКРАНАХ --- */
+.app-main {
+  max-width: 900px !important;
+  margin: 0 auto !important;
+}
+
+/* --- кнопка calculate строгая --- */
+#perp-form .form-actions button {
+  width: auto !important;
+  min-width: 160px;
+  padding: 10px 16px !important;
 }
