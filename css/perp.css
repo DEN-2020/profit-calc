@@ -82,9 +82,12 @@
   padding-left: 10px !important;   /* нормальный отступ */
 }
 
-/* запрещаем подхватывать spot-иконку */
 #perp-form .symbol-icon-img {
-  display: none !important;
+  display: inline-block;   /* ← показываем */
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  opacity: 1;
 }
 
 /* автокомплит не должен быть под spot-стилями */
